@@ -1,0 +1,86 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0107 
+header_name {.h} 
+code_name {.cpp}
+class Gui {open
+} {
+  Function {Gui()} {open
+  } {
+    Fl_Window MainWindow {
+      label {Scientific Visualization Projects} open selected
+      xywh {384 282 985 555} type Double
+      code0 {\#include "Application.h"}
+      code1 {\#include <stdlib.h>} visible
+    } {
+      Fl_Menu_Bar menuBar {
+        label menuBar open
+        xywh {0 0 985 25}
+      } {
+        Submenu fileMenu {
+          label File open
+          xywh {0 0 100 20}
+        } {
+          MenuItem readFile {
+            label Read
+            callback {app->ReadFile();}
+            xywh {0 0 100 20}
+          }
+          MenuItem writeFile {
+            label Write
+            callback {app->WriteFile();}
+            xywh {0 0 100 20}
+          }
+        }
+
+        SubMenu volumeMenu {
+        label Read Volume
+		  callback {app->ReadVolume();}
+		  xywh {0 0 100 20}
+		}
+		SubItem readVol{
+		label Read Volume
+		callback {app->ReadVolume();}
+		xywh {0 0 100 20}
+        }
+		SubItem xray{
+        
+		label X-Ray
+		callback {app->Xray();}
+		xywh {0 0 100 20}
+        }
+        SubItem MIP{
+		label MIP
+		callback {app->Mip();}
+		xywh {0 0 100 20}
+		}
+		
+        MenuItem exitButton {
+          label Exit
+          callback {exit(1);}
+          xywh {10 10 100 20} labelcolor 1
+        }
+      }
+      Fl_Box EditorWindow {
+        label EditorWindow
+        xywh {15 25 385 350}
+        code0 {\#include "EditorWindow.h"}
+        class CEditorWindow
+      }
+      Fl_Box DisplayWindow {
+        label DisplayWindow
+        xywh {415 25 570 530}
+        code0 {\#include "DisplayWindow.h"}
+        class CDisplayWindow
+      }
+    }
+    code {app=new Application();} {}
+  }
+  Function {show()} {open
+  } {
+    code {MainWindow->show();
+EditorWindow->show();
+DisplayWindow->show();} {}
+  }
+  decl {Application *app;} {public
+  }
+} 

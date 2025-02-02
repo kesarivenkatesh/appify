@@ -1,0 +1,206 @@
+---
+title: "Cancer Prediction"
+author: "authour"
+date: "2023-12-10"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+ 
+## Introduction
+
+Worldwide, breast cancer is the most frequent cancer to affect women. It affects about 2.1 million people in 2015 alone and makes up 25% of all cancer cases. It all begins when breast cells start to proliferate uncontrollably. Usually, these cells develop into tumors that are felt as lumps in the breast area or that are visible on X-rays.
+The main obstacle to its discovery is determining whether a tumor is benign (not cancerous) or malignant (cancerous). Please finish the analysis of the Breast Cancer Wisconsin (Diagnostic) Dataset and machine learning (using SVMs) to classify these tumors.
+
+#Data description
+Link to the dataset
+	
+https://www.kaggle.com/datasets/yasserh/breast-cancer-dataset
+
+•	This dataset contains information on features that help Build classification models to predict whether the cancer type is Malignant or Benign. Machine learning algorithms can be used to create prediction models with this data.  Utilize this dataset for visualization, exploration, and data cleaning.
+	 
+
+#Objective:
+•	Understand the Dataset & cleanup (if required).
+•	Build classification models to predict whether the cancer type is Malignant or Benign. 
+	and find the most important features
+
+# The research question
+What features contribute the most when building classification models to predict whether the cancer type is Malignant or Benign?	
+The factors or parameters from the dataset that can be utilized are 'radius_mean', 'texture_mean', 'perimeter_mean' and  'area_mean',
+	
+
+## Computational Methods 
+Data-driven, computational approach may be useful
+Because a data-driven, computational method makes it possible to analyze a lot of data and find patterns and interactions between variables, it might be helpful in addressing the research topic. When developing classification models to determine whether a cancer type is benign or malignant, the research question asks about the traits or qualities of the disease that are most significant. Stated differently, the goal of the research is to identify the critical variables that are important in differentiating between benign and malignant tumors. 
+A data-driven, computational approach may be useful in addressing the research topic since it enables the analysis of large amounts of data and the discovery of patterns and relationships between variables. In this case, the technique can help determine the most important features.
+
+A computational and data-driven method is proposed to address this question. This implies that in order to extract useful insights from the data, the research would need to analyze already-existing data on cancer cases, possibly with the aid of statistical models and algorithms. This method would entail gathering pertinent information, doing statistical analyses, and developing classification models in order to pinpoint the salient characteristics that are most important in determining the kind of cancer.
+In general, the research topic implies that it would be beneficial to use a data-driven, computational method to identify the factors that have the greatest influence when developing classification models that predict whether a cancer is benign or malignant.
+
+
+
+```{r  libraries }
+library(ggplot2)
+library(tidyverse)
+df1 = read.csv("C:\\Users\\nakka\\OneDrive\\Documents\\breast-cancer.csv")
+
+head(df1, 3)
+```
+# Load required libraries
+
+```{r  dim }
+dim(df1)
+```
+
+#• For the choosen dataset, what are the necessary data wrangling steps to make the data ready
+1. Remove missing values: Use the "na.omit" function to remove rows with missing values in the dataframe df1. This step is performed using the command "df1 <- na.omit(df1)".
+
+2. Check for missing values: Use the "sum(is.na())" function to count the number of missing values in the dataframe df1. This step is performed using the command "sum(is.na(df1))".
+
+3. Convert data type: Convert the "diagnosis" column from string to numeric. In this case, the "M" value is converted to 1 and the "B" value is converted to 0. This step can be performed using the "ifelse" function and the command "df1$diagnosis <- ifelse(df1$diagnosis == "M", 1, 0)".
+
+By performing these steps, the data is prepared for subsequent analyses by removing missing values and converting the necessary columns to the appropriate data types.
+```{r  null }
+df1 = na.omit(df1)
+
+#checking for missing values
+sum(is.na(df1))#
+```
+
+```{r   summary }
+summary(df1)
+
+```
+
+```{r  cols }
+colnames(df1)
+
+```
+
+
+```{r explore}
+#convert from string to numeric
+df1$diagnosis = ifelse(df1$diagnosis == "M", 1, 0)
+summary(df1)
+```
+
+## Exploratory analyses - EDA
+perimeter_mean had some outliers as shown by the boxplot
+
+```{r outliers, echo=FALSE}
+#some outliers present
+boxplot(df1$perimeter_mean)
+```
+
+```{r hist, echo=FALSE}
+hist(df1$radius_mean)
+```
+
+## Data Analysis and Results
+ 
+
+```{r  corMatrixc }
+#CORRELATION analysis
+temp = df1 |>
+  dplyr::select('radius_mean', 'texture_mean', 'perimeter_mean', 'area_mean', 'diagnosis' )
+head(temp)
+#install.packages("lattice")
+library(lattice)
+
+# rounding to 2 decimal places
+corr_m = round(cor(temp),2) 
+head(corr_m)  
+```
+These correlations show the relationship between the variable "diagnosis" (indicating whether a breast tumor is malignant or benign) and different features of the tumors: radius_mean, texture_mean, perimeter_mean, and area_mean. 
+
+- The correlation between "diagnosis" and "radius_mean" is positive with a value of 0.73. This indicates that as the average radius of the tumor increases, the likelihood of the tumor being diagnosed as malignant also increases.
+- The correlation between "diagnosis" and "texture_mean" is positive but weaker, with a value of 0.42. This suggests that there is a moderate association between the texture of the tumor and the diagnosis, but it is not as strong as the relationship with radius_mean.
+- The correlation between "diagnosis" and "perimeter_mean" is strong, with a value of 0.74. This means that as the average perimeter of the tumor increases, the chance of it being diagnosed as malignant also increases.
+- The correlation between "diagnosis" and "area_mean" is positive and has a value of 0.71. This indicates that there is a strong positive association between the average area of the tumor and the diagnosis. As the area increases, the likelihood of the tumor being malignant also increases.
+
+
+```{r corrr, echo=FALSE}
+#CORRELATION HEATMAP
+#install.packages("reshape2")
+library(reshape2)
+# reduce the size of correlation matrix
+melted_corr_mat = melt(corr_m)
+#head(melted_corr_mat)
+
+# section c questio 2 plotting the correlation heatmap
+ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
+                                   fill=value)) +
+  geom_tile()
+```
+
+
+
+
+## Modeling Techniques
+logistic regression was used as a modeling technique to predict cancer. The code snippet provided demonstrates how logistic regression was implemented using the glm() function in R. The dependent variable, "diagnosis," represents the presence or absence of cancer, and the independent variables, "radius_mean," "texture_mean," "perimeter_mean," and "area_mean," are the predictors used in the model.
+
+The glm() function is applied to the dataset "df1," and the family argument is set to "binomial" to indicate that we are performing binary logistic regression. This means that the outcome variable, diagnosis, is binary (presence or absence of cancer) and follows a binomial distribution.
+
+By running this code, the logistic regression model is estimated, which allows us to predict the probability of cancer based on the values of the predictor variables. The model takes into account the relationship between the predictors and the outcome variable and provides coefficients that quantify the effect of each predictor on the likelihood of having cancer.
+```{r model}
+#df_model1 = subset(df_clean, select = c(Purchased_numeric,Income))
+model = glm(  diagnosis ~  radius_mean + texture_mean + perimeter_mean + area_mean, data = df1, family = binomial)
+summary(model)$coef
+coef(model)
+```
+
+
+## FEATURE SELECTION
+
+```{r  important }
+library(caret)
+important_features = varImp(model)
+important_features
+#DISPLAYS THE TOP FEATURES
+
+```
+
+The research question aims to determine which features are most important in building classification models to predict whether a cancer type is Malignant or Benign. The factors or parameters considered for analysis are 'radius_mean', 'texture_mean', 'perimeter_mean', and 'area_mean'. The feature selection analysis revealed that 'perimeter_mean' is the most significant feature, followed by 'radius_mean' and 'texture_mean'. 'Area_mean' was found to contribute the least in predicting the cancer type.
+
+```{r BESTmodel}
+ 
+model2 = glm(  diagnosis ~  radius_mean + perimeter_mean , data = df1, family = binomial)
+summary(model2)$coef
+coef(model2)
+
+```
+## Interpretation
+The estimate for the Intercept is -13.301275, indicating that the log chances of a positive diagnosis are -13.301275 when both "radius_mean" and "perimeter_mean" are 0.
+
+The estimate for "radius_mean" is -5.741509, meaning that the log probabilities of a positive diagnosis drop by -5.741509 for every unit increase in "radius_mean" while keeping all other variables constant.
+
+The estimate for "perimeter_mean" is 1.020808, meaning that the log probabilities of a positive diagnosis rise by 1.020808 for every unit increase in "perimeter_mean" while keeping all other variables constant.
+
+With a statistically significant p-value for each coefficient, it is possible that they all significantly deviate from zero and have an effect on the outcome variable.
+
+
+## Conclusion
+The goal of the study is to use a logistic regression model to ascertain the significance of various variables in predicting the kind of cancer (malignant or benign). Four features—"radius_mean," "texture_mean," "perimeter_mean," and "area_mean"—are included in the analysis, and their importance in determining the kind of cancer is assessed.
+
+The research can be deemed more generalizable if the dataset is typical of the entire population and includes a wide variety of cancer cases.
+
+It is necessary to take into account any potential limitations with this analysis. First off, the study only takes into account four features; other significant features may exist that are left out of the model. There's a chance that leaving out some features could compromise the model's precision and applicability.
+
+It is necessary to take into account any potential limitations with this analysis. First off, the study only takes into account four features; other significant features may exist that are left out of the model. There's a chance that leaving out some features could compromise the model's precision and applicability.
+
+Furthermore, the cautionary note "fitted probabilities numerically 0 or 1 occurred" raises the possibility of a separation problem in the data, which could result in inaccurate parameter estimations. Either greater data collection or the application of regularization strategies like ridge or lasso regression can be used to solve this problem.
+
+Moreover, it's possible that the analysis's findings cannot be applied to other cancer kinds or demographics. The analysis is particular to the dataset that was  used.
+
+It would be advantageous to take into account a larger dataset with a more varied range of cases in order to enhance the analysis. This could enhance the generalizability of the findings and assist capture the diversity in various cancer types. To find the most pertinent features for predicting cancer type, it would also be beneficial to investigate other feature selection methods like correlation analysis or recursive feature removal.
+
+
+In conclusion, there are restrictions on the analysis's scope and generalizability even if it sheds light on the significance of particular characteristics in predicting the kind of cancer. Extensive and varied datasets and additional feature selection methods can be used in future study to enhance the precision and relevance of the results.
+
+

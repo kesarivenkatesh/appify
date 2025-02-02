@@ -1,0 +1,225 @@
+---
+title: "LinearRegressHouse"
+author: "authour"
+date: "2023-12-01"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+
+
+
+---
+title: "housePrice"
+author: "authour"
+date: "2023-11-30"
+output: html_document
+---
+ 
+
+ Data analysis on Housing Dataset
+Introduction
+	
+Data description
+Link to the dataset
+
+https://www.kaggle.com/datasets/yasserh/housing-prices-dataset/download?datasetVersionNumber=1
+
+This dataset contains information on 546 by 13 variables. The aim would be to predict the housing price based on certain factors like house area, bedrooms, furnished, nearness to mainroad. Machine learning algorithms can be used to create prediction models with this data.  Utilize this dataset for visualization, exploration, and data cleaning. 
+
+ The research question
+Is there a relationship between area of the room and the price of a house?
+
+The following factors or parameters from the dataset can be utilized to ascertain the connection between .To ascertain the connection between the area of a room and the price of a house, the following variables could be utilized from the dataset:
+
+Area of the room: This would be the primary independent variable to measure the size of the room. It could be represented in square feet or square meters.
+Price of the house: This would be the dependent variable, as it would be influenced by the area of the room. The price of the house could be represented in the local currency.
+
+ Data-driven, computational approach may be useful
+in examining the connection between a room's size and a house's cost. Through computer analysis of a dataset comprised of different property listings with associated room sizes and prices, patterns, correlations, and trends in the data can be found.
+
+It is feasible to ascertain whether there is a statistically significant correlation between a room's area and a house's price by using a statistical model or machine learning algorithm. This method makes it possible to add more pertinent elements to the research, like the property's location, number of bedrooms, amenities, and overall state.
+Furthermore, processing big datasets—which could include dozens or even millions of individual house listings—is made possible by a computational technique.  
+Moreover, employing a data-driven methodology facilitates the examination of various statistical methods to comprehend the correlation between a room's area and a house's cost. Finding possible relationships and coming to insightful conclusions can be accomplished through the use of a variety of visualizations, regression models, and hypothesis testing.
+
+
+Overall, the benefit of a data-driven, computational method is that it may provide unbiased, fact-based understanding of the connection between a room's size and a house's price. It enables more thorough research by taking into account several variables at once and is effective when applied to big datasets, producing conclusions that are more solid and trustworthy.
+
+ 
+
+
+```{r  libraries }
+library(ggplot2)
+library(tidyverse)
+  
+df1 <- read.csv("C:/Users/samso/Desktop/Housing.csv")
+head(df1)
+```
+# Load required libraries
+
+```{r  dim }
+dim(df1)
+
+```
+Data wrangling techniques involve transforming and cleaning raw data into a format suitable for analysis. One essential aspect of data wrangling is checking and handling missing values.
+
+In R, the "na.omit" function is used to remove rows with missing values from a data frame. The example code "df1 <- na.omit(df1)" removes rows with missing values from the data frame "df1". This function helps in ensuring data integrity and avoiding bias caused by missing values.
+
+The code "sum(is.na(df1))" calculates the total count of missing values in the data frame "df1". The "is.na" function returns a logical vector indicating missing values (NA) in a data frame. By summing all these logical values, we get the total count of missing values.
+
+```{r  null }
+df1 <- na.omit(df1)
+
+#checking for missing values
+sum(is.na(df1))#
+```
+## data description
+```{r   summary }
+summary(df1)
+
+```
+
+```{r  cols }
+colnames(df1)
+
+```
+
+
+
+
+exploratory analyses  
+```{r outliers, echo=FALSE}
+#some outliers present
+boxplot(df1$price)
+```
+some outliers present in the price column
+
+```{r hist, echo=FALSE}
+hist(df1$price)
+```
+##Computational Methods 
+#• For the choosen dataset, what are the necessary data wrangling steps to make the data ready
+for subsequent analyses?
+• What exploratory analyses and modeling techniques
+
+
+
+## Data Analysis and Results 
+ 
+```{r  corMatrixc }
+#CORRELATION analysis
+temp <- df1 %>% 
+  dplyr::select("price","area","bedrooms","bathrooms","stories")
+head(temp)
+#install.packages("lattice")
+library(lattice)
+
+# rounding to 2 decimal places
+corr_m <- round(cor(temp),2) 
+head(corr_m)  
+```
+There are varying degrees of correlation between the different variables. The highest positive correlation is observed between price and area, with a correlation coefficient of 0.54. This indicates that as the area of a house increases, the price tends to increase as well. The correlation between price and bedrooms is slightly weaker, with a coefficient of 0.37. Similarly, there is a positive correlation between price and bathrooms, with a coefficient of 0.52. On the other hand, the correlation between price and stories is relatively moderate, with a coefficient of 0.42. Overall, this suggests that the size and number of rooms in a house tend to impact its price, while the number of stories has a slightly lower influence.
+# Perform data analysis, document the analysis procedure, and evaluate the outcomes.
+
+```{r corrr, echo=FALSE}
+#CORRELATION HEATMAP
+#install.packages("reshape2")
+library(reshape2)
+# reduce the size of correlation matrix
+melted_corr_mat <- melt(corr_m)
+#head(melted_corr_mat)
+
+# section c questio 2 plotting the correlation heatmap
+ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
+                                   fill=value)) +
+  geom_tile()
+```
+
+
+
+
+## modeling techniques
+```{r abc }
+# REGRESSION MODEL
+library(dplyr)  # for data manipulation
+library(ggplot2)  # for visualization
+library(caret)  # for modeling
+# Split the dataset into training and testing sets
+set.seed(123)  # for reproducibility
+```
+
+
+```{r  plots, echo=FALSE}
+plot(price ~ area, data = df1)
+
+
+```
+
+
+```{r  linearMode }
+# Train the model using linear regression
+linear_model <- lm(price ~  ., data = df1)
+
+summary(linear_model)
+ 
+```
+
+## FEATURE SELECTION
+ By selecting relevant features, we can enhance the predictive accuracy of the machine learning models. Including irrelevant or redundant features can introduce noise and lead to poor performance. Feature selection helps to focus on the most significant features that have a direct impact on the target variable, leading to more accurate predictions.
+
+```{r  important }
+library(caret)
+important_features <-varImp(linear_model)
+important_features
+#DISPLAYS THE TOP FEATURES
+
+```
+
+```{r  besModel }
+model_best <- train(price ~ area + bathrooms + stories, data = df1, method = "lm")
+
+# Print the model summary
+summary(model_best$finalModel)
+
+```
+The coefficients for the model are shown in the second part of the output. The coefficients are the amounts by which the outcome variable is predicted to change when the predictor variable increases by one unit. For example, the coefficient for the area variable is 385.11. This means that the outcome variable is predicted to increase by 385.11 units for every one unit increase in the area variable.
+
+The p-values for the coefficients are shown in the last column of the output. The p-value is the probability of getting a test statistic as extreme as the one that was observed, assuming that the null hypothesis is true. The null hypothesis is that the coefficient is equal to zero. In other words, the p-value is the probability that the observed effect of the predictor variable on the outcome variable is due to chance.
+
+The p-values for all of the coefficients in the model are less than 0.001. This means that we can reject the null hypothesis for all of the coefficients and conclude that the predictor variables have a statistically significant effect on the outcome variable.
+
+## What metrics will be used to evaluate the quality of the data analysis?
+
+
+The R-squared value for the model is 0.5309. This means that 53.09% of the variation in the outcome variable can be explained by the predictor variables in the model. The adjusted R-squared value is 0.5283. This is a slightly lower value than the R-squared value, but it takes into account the number of predictor variables in the model.
+
+The F-statistic for the model is 204.1. The p-value for the F-statistic is less than 2.2e-16. This means that we can reject the null hypothesis that the coefficients for all of the predictor variables in the model are equal to zero. In other words, we can conclude that the model is a good fit for the data.
+
+Overall, the results of the model are good. The coefficients are all statistically significant, the R-squared value is high, and the p-value for the F-statistic is very low. This suggests that the model is a good fit for the data and that the predictor variables have a strong effect on the outcome variable.
+
+
+
+
+The analysis's purview is restricted to the a few houses included in the dataset. Due to the small sample size, it's probable that the analysis' findings cannot be applied to a higher number of homes.The fact that the data were gathered from a single source further restricts the analysis's capacity to be broadly applied. There's a chance that the homes in the dataset don't accurately reflect every home in the community. A possible drawback of the analysis could be that it ignores other variables that could influence a home's price, like the house's location, the caliber of the school system, and the neighborhood's crime rate.
+
+Data collection on a broader sample of houses could be one area for development. As a result, the analysis's findings would be more broadly applicable.
+
+
+Getting information on other elements that could influence a home's price is another way to make improvements. This would enable a more thorough examination of the elements influencing a home's pricing. Finally, the relationship between a house's price and its size, number of bathrooms, and number of stories might be examined using a more sophisticated model. This would make it possible to depict the actual link between these variables more accurately.
+
+
+
+ 
