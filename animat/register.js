@@ -1,40 +1,30 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const registerForm = document.getElementById("registerForm");
-    const registerButton = document.getElementById("registerButton");
+document.getElementById("registerButton").addEventListener("click", async () => {
+    const username = document.getElementById("regUsername").value;
+    const password = document.getElementById("regPassword").value;
 
-    // Slide-in animation
-    setTimeout(() => {
-        registerForm.style.animation = "slideIn 1s forwards";
-    }, 2000);
+    if (!username || !password) {
+        alert("Please enter both username and password.");
+        return;
+    }
 
-    // Handle Registration
-    registerButton.addEventListener("click", async function () {
-        const username = document.getElementById("regUsername").value;
-        const password = document.getElementById("regPassword").value;
+    try {
+        const response = await fetch("http://localhost:5000/api/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password }),
+        });
 
-        if (!username || !password) {
-            alert("Please enter both username and password.");
-            return;
+        const data = await response.json();
+        if (data.success) {
+            alert("Registration successful! You can now log in.");
+            // Redirect to login page or perform other actions
+        } else {
+            alert(data.message);
         }
-
-        try {
-            const response = await fetch("http://localhost:5000/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ username, password }),
-            });
-
-            const result = await response.json();
-            alert(result.message);
-
-            if (result.success) {
-                window.location.href = "index.html"; // Redirect to login
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Failed to register. Try again.");
-        }
-    });
+    } catch (error) {
+        console.error("Error during registration:", error);
+        alert("An error occurred during registration.");
+    }
 });
