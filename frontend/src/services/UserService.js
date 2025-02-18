@@ -30,8 +30,28 @@ class UserService {
         }
     }
 
-    login(headers, postparams, body) {
-        
+    async login(username, password) {
+      try {
+        const response = await axios.get("/login", {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic '+utf8_to_b64(username+":"+password)
+          }
+        });
+        return response;
+      } catch (error) {
+        console.error("Registration failed:", error);
+        if (error.response) {
+          console.error("Response data:", error.response.data);
+          console.error("Response status:", error.response.status);
+          console.error("Response headers:", error.response.headers);
+        } else if (error.request) {
+          console.error("Request:", error.request);
+        } else {
+          console.error("Error message:", error.message);
+        }
+        throw error;
+      }
     }
 }
 

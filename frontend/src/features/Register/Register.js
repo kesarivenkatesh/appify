@@ -55,9 +55,14 @@ function Register() {
 
     
     const register = () => {
-        new UserService().register("{'firstname': user.firstname, 'lastname': user.lastname}", user.username, user.password)
+        const body = {
+            "firstname": user.firstname,
+            "lastname": user.lastname
+        }
+        new UserService().register(body, user.username, user.password)
             .then(response => {
-                if(response.error === 201 && response.data.message === "User registered successfully") {
+                console.log(response, response.data.message);
+                if(response.status === 201 && response.data.message === "User registered successfully") {
                     navigate("/login");
                 }
             })

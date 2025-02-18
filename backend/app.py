@@ -73,7 +73,7 @@ def insert_user():
 
 
 
-@app.post("/login")
+@app.get("/login")
 def get_user():
     if 'user' in session:
         return jsonify({"message": "Already logged in"}), 406
