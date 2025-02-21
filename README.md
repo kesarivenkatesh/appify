@@ -12,6 +12,8 @@ Capstone project for Team Shark Spring 25
 ### frontend
 - npm install
 - npm start
+- npm install lucide-react
+- npm  install react-router-dom
 ### backend
 - python3 -m venv .venv
 - source .venv/bin/activate

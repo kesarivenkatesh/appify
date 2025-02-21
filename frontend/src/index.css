@@ -1,13 +1,582 @@
-body {
+* {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Home container */
+.home {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  background-color: #fff;
+}
+
+/* Header styles - fixed at top */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 60px;
+  background-color: #fff;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Header content wrapper */
+.header-content {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 10px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo .h1 {
+  font-size: 30px;
+  color: #7C3AED;
+  font-weight: 500;
+  font-family: cursive;
+}
+
+
+.header .btn {
+  padding: 10px 50px;
+  color:#fff;
+}
+
+.header .btn button {
+  padding: 10px 30px;
+  background-color: #7C3AED;
+  border: 1px solid #fff;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Main content area - scrollable */
+.page-container {
+  margin-top: 100px;
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Content wrapper for all sections */
+.content-wrapper {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* Hero section */
+.hero-section {
+  position: relative;
+  padding: 80px 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  width: 100%;
+}
+
+.hero-content {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.hero-title {
+  font-size: 48px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 20px;
+  color: #4a5568;
+  margin-bottom: 32px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Features section */
+.features-section {
+  padding: 60px 0;
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.features-grid {
+  display: grid;
+  gap: 24px;
+  width: 100%;
+}
+
+/* Feature card */
+.feature-card {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  background-color: #F3E8FF;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.feature-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.feature-description {
+  font-size: 16px;
+  color: #4a5568;
+  line-height: 1.5;
+}
+
+/* CTA section */
+.cta-section {
+  padding: 60px 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+}
+
+.cta-container {
+  background-color: white;
+  border-radius: 24px;
+  padding: 40px 24px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.cta-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 20px;
+}
+
+.cta-description {
+  font-size: 18px;
+  color: #4a5568;
+  margin-bottom: 32px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Button styles */
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 32px;
+  background-color: #7C3AED;
+  color: white;
+  border-radius: 9999px;
+  font-size: 18px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  border: none;
+  cursor: pointer;
+  gap: 8px;
+}
+
+.primary-button:hover {
+  background-color: #6D28D9;
+}
+
+/* login and Register */
+/* General Container Styles */
+.full-height {
+  min-height: 100vh; /* Full viewport height */
+  display: flex; /* Use Flexbox */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+  padding: 0 1rem; /* Optional padding */
+  background-color: #f7fafc; /* Light background color */
+}
+
+/* Card Styles for both Login and Register */
+.card {
+  max-width: 28rem; /* Maximum width for the card */
+  width: 100%; /* Full width */
+  background-color: #ffffff; /* White background */
+  padding: 2rem; /* Padding inside the card */
+  border-radius: 1rem; /* Rounded corners */
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* Shadow effect */
+}
+
+/* Text and Link Styles */
+.text-center {
+  text-align: center; /* Center text alignment */
+}
+
+.text-purple-600 {
+  color: #6b46c1; /* Purple color for links and icons */
+}
+
+.text-purple-500 {
+  color: #805ad5; /* Lighter purple for hover effects */
+}
+
+/* Error Message Styles */
+.error-message {
+  background-color: #fff5f5; /* Light red background for error messages */
+  color: #e53e3e; /* Red color for error messages */
+  padding: 0.75rem; /* Padding */
+  border-radius: 0.375rem; /* Rounded corners */
+  font-size: 0.875rem; /* Font size */
+}
+
+/* Input and Button Styles */
+.input {
+  width: 100%; /* Full width */
+  padding: 0.5rem 2.5rem; /* Padding */
+  border: 1px solid #cbd5e0; /* Border color */
+  border-radius: 0.375rem; /* Rounded corners */
+  transition: border-color 0.2s, box-shadow 0.2s; /* Transition effects */
+}
+
+.input:focus {
+  border-color: #6b46c1; /* Border color on focus */
+  box-shadow: 0 0 0 1px rgba(107, 70, 193, 0.5); /* Shadow effect on focus */
+}
+
+.button {
+  width: 100%; /* Full width */
+  padding: 0.5rem 1rem; /* Padding */
+  background-color: #6b46c1; /* Button background color */
+  color: white; /* Button text color */
+  border: none; /* No border */
+  border-radius: 0.375rem; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor */
+  transition: background-color 0.2s, transform 0.1s; /* Transition effects */
+}
+
+.button:hover {
+  background-color: #5a3e9d; /* Darker background on hover */
+}
+
+.button:active {
+  transform: scale(0.98); /* Slightly shrink button on click */
+}
+
+/* Journal Styles */
+/* Journal container */
+.journal-container {
+  max-width: 4xl;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+/* Title and description section */
+.journal-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* Journal welcome text */
+.journal-welcome {
+  padding-top: 64px;
+  padding-bottom: 64px;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.journal-welcome h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1a202c;
+  margin-bottom: 16px;
+}
+
+.journal-welcome p {
+  font-size: 1rem;
+  color: #4a5568;
+  margin-bottom: 32px;
+  max-width: 25rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Journal Entry Form */
+.journal-form {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
+}
+
+.journal-form form {
+  padding: 24px;
+}
+
+.journal-form label {
+  font-size: 0.875rem;
+  font-weight: medium;
+  color: #4a5568;
+  margin-bottom: 8px;
+}
+
+.journal-form input,
+.journal-form textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  focus:ring 2px solid #6b46c1;
+  focus:border-transparent;
+}
+
+.journal-form button {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #6b46c1;
+  color: white;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.journal-form button:hover {
+  background-color: #4c2d91;
+}
+
+/* Entry list */
+.journal-entry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.journal-entry {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.journal-entry:hover {
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.journal-entry .entry-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 24px;
+}
+
+.journal-entry .entry-header .mood-icon {
+  display: flex;
+  align-items: center;
+}
+
+.journal-entry .entry-header h3 {
+  font-size: 1.25rem;
+  font-weight: semi-bold;
+  color: #1a202c;
+}
+
+.journal-entry .entry-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.journal-entry .entry-tags span {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background-color: #f7fafc;
+  color: #6b46c1;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+}
+
+.journal-entry .entry-info {
+  display: flex;
+  gap: 12px;
+  font-size: 0.875rem;
+  color: #6b46c1;
+  padding: 16px 24px;
+}
+
+.journal-entry .entry-content {
+  padding: 16px 24px;
+  color: #4a5568;
+  font-size: 1rem;
+  white-space: pre-wrap;
+}
+
+.journal-entry .entry-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px;
+  gap: 8px;
+}
+
+.journal-entry .entry-actions button {
+  padding: 8px;
+  background-color: #e2e8f0;
+  color: #4a5568;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.journal-entry .entry-actions button:hover {
+  background-color: #cbd5e0;
+}
+
+.journal-entry .entry-actions button.delete {
+  background-color: #f87171;
+  color: white;
+}
+
+.journal-entry .entry-actions button.delete:hover {
+  background-color: #ef4444;
+}
+
+/* Error & Info Messages */
+.error-message {
+  background-color: #fef2f2;
+  color: #f56565;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.error-message button {
+  color: #e53e3e;
+}
+
+.info-message {
+  background-color: #fefcbf;
+  color: #d69e2e;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.info-message a {
+  color: #d69e2e;
+  text-decoration: underline;
+}
+
+/* Center content vertically and horizontally */
+.center-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+}
+
+.journal-header .text-center {
+  text-align: center;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .journal-container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .journal-form input,
+  .journal-form textarea {
+    padding: 10px;
+  }
+}
+
+
+/* Responsive Styles */
+@media (max-width: 640px) {
+  .card {
+    width: 100%; /* Full width on smaller screens */
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 767px) {
+  .header-content,
+  .content-wrapper {
+    padding: 10px 20px;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .hero-title {
+    font-size: 36px;
+  }
+  
+  .feature-card {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .hero-title {
+    font-size: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .features-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .hero-title {
+    font-size: 64px;
+  }
+  
+  .cta-container {
+    padding: 48px;
+  }
 }

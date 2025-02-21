@@ -1,110 +1,158 @@
-from flask import Flask, request, session, jsonify
-from pymongo import MongoClient
-import base64
+from flask import Flask, request, jsonify, Blueprint
+from flask_pymongo import PyMongo
 from flask_cors import CORS
+import bcrypt
+import jwt
+import datetime
+from functools import wraps
 import os
 from dotenv import load_dotenv
-from argon2 import PasswordHasher
+from bson.objectid import ObjectId
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure
+import logging
+from logging.handlers import RotatingFileHandler
+import time
 
-app = Flask(__name__)
-app.secret_key = os.urandom(24)
-CORS(app, origins="http://localhost:3006")
-
+# Load environment variables
 load_dotenv()
-connection = MongoClient(os.getenv("CONNECTION_STRING"))
-db = connection["appifydb"]  # Replace with your database name
-users_collection = db["users"]
+
+# Initialize Flask app
+app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3007"}})
 
 
-# get username and password from header
-def get_username_password_from_request():
-    auth_header = request.headers.get('Authorization')
-    if not auth_header:
-        return None, "Authorization header missing"
+# Configure logging
+if not os.path.exists('logs'):
+    os.makedirs('logs')
 
-    try:
-        auth_type, encoded_creds = auth_header.split(None, 1)  # Split "Basic ..."
-        if auth_type.lower() != 'basic':
-            return None, "Invalid authorization type"
+file_handler = RotatingFileHandler('logs/app.log', maxBytes=10240, backupCount=10)
+file_handler.setFormatter(logging.Formatter(
+    '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+))
+file_handler.setLevel(logging.INFO)
+app.logger.addHandler(file_handler)
+app.logger.setLevel(logging.INFO)
+app.logger.info('API startup')
 
-        decoded_creds = base64.b64decode(encoded_creds).decode('utf-8')
-        username, password = decoded_creds.split(":", 1)  # Split username:password
-        return {"username": username, "password": password}, None
-    except (ValueError, base64.binascii.Error):
-        return None, "Invalid authorization header"
+# MongoDB connection
+try:
+    client = MongoClient(
+    os.getenv("MONGO_URI"),
+    tls=True,
+    tlsAllowInvalidCertificates=True  # This disables certificate validation
+)
 
+    client.admin.command('ismaster')  # Verify connection
+    mongo = PyMongo(app, uri=os.getenv("MONGO_URI"))
+except Exception as e:
+    app.logger.error(f"Fatal error: Could not connect to MongoDB: {e}")
+    raise
 
+app.config["SECRET_KEY"] = os.getenv("ACCESS_TOKEN_SECRET")
+if not app.config["SECRET_KEY"]:
+    raise ValueError("No SECRET_KEY set in environment")
 
-@app.post("/register")
-def insert_user():
-    if 'user' in session:
-        return jsonify({"message": "Already logged in"}), 406
-    creds, error_message = get_username_password_from_request()
+# Token authentication decorator
+def authenticate_token(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if token:
+            token = token.split(" ")[1] if " " in token else None
 
-    if creds:
-        username = creds.get("username")
-        password = creds.get("password")
-        user_data = request.get_json()
-        firstname = user_data.get('firstname')
-        lastname = user_data.get('lastname')
-        # basic checks
-        if not username or not password or not firstname or not lastname:
-            return jsonify({"error": "Missing required fields"}), 400
-        # check if username already exists
-        if users_collection.find_one({"username": username}):
-            return jsonify({"error": "Username already exists"}), 400
-        # if not hash password by argon2
-        ph = PasswordHasher()
-        hashed_password = ph.hash(password.encode('utf-8'))
-        # add details to database
+        if not token:
+            return jsonify({"error": "Token is missing"}), 401
+
         try:
-            users_collection.insert_one({
-                "username": username,
-                "password": hashed_password,
-                "firstname": firstname,
-                "lastname": lastname
-            })
-        # else error
+            data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
+            current_user = mongo.db.users.find_one({"_id": ObjectId(data["userId"])});
+            if not current_user:
+                raise jwt.InvalidTokenError("User not found")
+        except jwt.ExpiredSignatureError:
+            return jsonify({"error": "Token has expired"}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({"error": "Invalid token"}), 401
         except Exception as e:
-            return jsonify({"error": f"Database error: {str(e)}"}), 500
-        return jsonify({"message": "User registered successfully"}), 201
-    else:
-        return jsonify({"error": error_message}), 401
+            app.logger.error(f"Token authentication error: {e}")
+            return jsonify({"error": "Authentication failed"}), 401
 
+        return f(current_user, *args, **kwargs)
+    return decorated
 
+# Authentication Routes
+auth_bp = Blueprint('auth', __name__)
 
-@app.post("/login")
-def get_user():
-    if 'user' in session:
-        return jsonify({"message": "Already logged in"}), 406
-    creds, error_message = get_username_password_from_request()
+@auth_bp.route('/signup', methods=['POST'])
+def signup():
+    data = request.json
+    name, email, password = data.get('name'), data.get('email'), data.get('password')
 
-    if creds:
-        username = creds.get("username")
-        password = creds.get("password")
-        hashed_password = None
-        # check the password with hashed password in database
-        user = users_collection.find_one({"username": username})
+    if not all([name, email, password]):
+        return jsonify({"message": "All fields are required!"}), 400
+    
+    if mongo.db.users.find_one({"email": email}):
+        return jsonify({"message": "User already exists!"}), 400
 
-        if user:
-            hashed_password = user.get("password")
-        else:
-            return jsonify({"error": "Invalid username"}), 401
-        
-        ph = PasswordHasher()
-        if hashed_password and ph.verify(hashed_password, password.encode('utf-8')):
-            # if matches, return cookie with set-cookie header
-            session['user']=username
-            return jsonify({"message": "Login successful"}), 200
-        else:
-            return jsonify({"error": error_message}), 401
-    else:
-        return jsonify({"error": error_message}), 401
+    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    mongo.db.users.insert_one({"name": name, "email": email, "password": hashed_pw})
+    return jsonify({"message": "User created successfully!"}), 201
 
-@app.route('/logout')
-def logout():
-	session.pop('user', None)
-	return jsonify({"message": "Logout successful"}), 200
+@auth_bp.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    email, password = data.get('email'), data.get('password')
+    user = mongo.db.users.find_one({"email": email})
+    
+    if not user or not bcrypt.checkpw(password.encode('utf-8'), user['password']):
+        return jsonify({"error": "Invalid credentials!"}), 400
+    
+    token = jwt.encode({"userId": str(user['_id']), "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)}, app.config["SECRET_KEY"], algorithm="HS256")
+    return jsonify({"message": "Login successful!", "token": token, "user_id": str(user['_id'])}), 200
 
-if __name__=="__main__":
-    app.run(port=8000, debug=True)
+# Journal Routes
+journal_bp = Blueprint('journal', __name__)
+
+@journal_bp.route('/journals', methods=['GET'])
+@authenticate_token
+def get_journals(current_user):
+    journals = list(mongo.db.journals.find({"user_id": str(current_user['_id'])}))
+    return jsonify([{ "id": str(journal['_id']), "title": journal['title'], "content": journal['content'] } for journal in journals])
+
+@journal_bp.route('/journals', methods=['POST'])
+@authenticate_token
+def create_journal(current_user):
+    data = request.json
+    if not all([data.get('title'), data.get('content')]):
+        return jsonify({"message": "Title and content are required!"}), 400
+    
+    journal_id = mongo.db.journals.insert_one({
+        "user_id": str(current_user['_id']),
+        "title": data['title'],
+        "content": data['content'],
+        "created_at": datetime.datetime.utcnow()
+    }).inserted_id
+    
+    return jsonify({"message": "Journal created successfully!", "journal_id": str(journal_id)}), 201
+
+@journal_bp.route('/journals/<journal_id>', methods=['DELETE'])
+@authenticate_token
+def delete_journal(current_user, journal_id):
+    journal = mongo.db.journals.find_one({"_id": ObjectId(journal_id), "user_id": str(current_user['_id'])})
+    if not journal:
+        return jsonify({"message": "Journal not found or unauthorized"}), 404
+    
+    mongo.db.journals.delete_one({"_id": ObjectId(journal_id)})
+    return jsonify({"message": "Journal deleted successfully!"}), 200
+
+# Register Blueprints
+app.register_blueprint(auth_bp, url_prefix='/auth')
+app.register_blueprint(journal_bp, url_prefix='/api')
+
+@app.route('/')
+def home():
+    return jsonify({"message": "API running", "status": "running", "version": "2.0"})
+
+if __name__ == '__main__':
+    port = int(os.getenv("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=os.getenv("FLASK_DEBUG", "False").lower() == "true")

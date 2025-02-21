@@ -1,52 +1,55 @@
-/* Login Component Styles */
-.login-container {
-    min-height: 100vh;
+/* Register Component Styles */
+.register-container {
+    min-height: calc(100vh - 4rem);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
+    padding: 0 1rem;
     background-color: #f7fafc;
   }
   
-  .login-card {
+  .register-card {
+    max-width: 28rem;
     width: 100%;
-    max-width: 400px;
-    background-color: white;
+    background-color: #ffffff;
     padding: 2rem;
     border-radius: 1rem;
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
   }
   
-  /* Rest of your existing login-* styles */
-  .login-icon {
+  .register-header {
+    text-align: center;
+  }
+  
+  .register-icon {
     margin: 0 auto;
     height: 3rem;
     width: 3rem;
     color: #6b46c1;
   }
   
-  .login-title {
+  .register-title {
     margin-top: 1.5rem;
     font-size: 1.875rem;
     font-weight: 700;
     color: #1a202c;
   }
   
-  .login-subtitle {
+  .register-subtitle {
     margin-top: 0.5rem;
     font-size: 0.875rem;
     color: #4a5568;
   }
   
-  .login-link {
+  .register-link {
     color: #6b46c1;
     transition: color 0.2s ease;
   }
-  .login-link:hover {
+  .register-link:hover {
     color: #805ad5;
   }
   
-  .login-error {
+  .register-error {
     background-color: #fff5f5;
     color: #e53e3e;
     padding: 0.75rem;
@@ -54,40 +57,47 @@
     font-size: 0.875rem;
   }
   
-  .login-input-group {
+  .register-form {
+    margin-top: 2rem;
+  }
+  
+  .register-input-group {
     margin-bottom: 1rem;
   }
-  .login-label {
+  
+  .register-label {
     display: block;
     font-size: 0.875rem;
     font-weight: 500;
     color: #1a202c;
   }
   
-  .login-input-wrapper {
+  .register-input-wrapper {
     position: relative;
     margin-top: 0.25rem;
   }
-  .login-input-icon {
+  
+  .register-input-icon {
     position: absolute;
     top: 50%;
     left: 0.75rem;
     transform: translateY(-50%);
     color: #a0aec0;
   }
-  .login-input {
+  
+  .register-input {
     width: 100%;
     padding: 0.5rem 2.5rem 0.5rem 2.25rem;
     border: 1px solid #cbd5e0;
     border-radius: 0.375rem;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .login-input:focus {
+  .register-input:focus {
     border-color: #6b46c1;
     box-shadow: 0 0 0 1px rgba(107, 70, 193, 0.5);
   }
   
-  .login-button {
+  .register-button {
     width: 100%;
     padding: 0.5rem 1rem;
     background-color: #6b46c1;
@@ -98,11 +108,16 @@
     cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
   }
-  .login-button:hover {
+  .register-button:hover {
     background-color: #5a3e9d;
   }
-  .login-button:active {
+  .register-button:active {
     transform: scale(0.98);
   }
   
-  
+  @media (max-width: 640px) {
+    .register-card {
+      width: 100%;
+      margin: 0 1rem;
+    }
+  }
