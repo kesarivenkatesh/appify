@@ -14,6 +14,7 @@ load_dotenv()
 connection = MongoClient(os.getenv("CONNECTION_STRING"))
 db = connection["appifydb"]  # Replace with your database name
 users_collection = db["users"]
+journals_collection = db["journals"]
 
 
 # get username and password from header
@@ -32,8 +33,6 @@ def get_username_password_from_request():
         return {"username": username, "password": password}, None
     except (ValueError, base64.binascii.Error):
         return None, "Invalid authorization header"
-
-
 
 @app.post("/register")
 def insert_user():
@@ -71,8 +70,6 @@ def insert_user():
     else:
         return jsonify({"error": error_message}), 401
 
-
-
 @app.get("/login")
 def get_user():
     if 'user' in session:
@@ -105,6 +102,23 @@ def get_user():
 def logout():
 	session.pop('user', None)
 	return jsonify({"message": "Logout successful"}), 200
+
+@app.post('/journal')
+def create_journal():
+    pass
+
+@app.get('/journal')
+def read_journals():
+    pass
+
+@app.put('/journal')
+def update_journal():
+    pass
+
+@app.delete('/journal')
+def delete_journal():
+    pass
+
 
 if __name__=="__main__":
     app.run(port=8000, debug=True)

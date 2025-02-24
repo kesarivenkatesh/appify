@@ -2,7 +2,7 @@ import Header from "./Header.js";
 import Main from "./Main.js";
 
 
-const Dashboard = () => {
+const Home = () => {
     return(
         <div className="home">
             <Header />
@@ -11,4 +11,4 @@ const Dashboard = () => {
     );
 }
 
-export default Dashboard;
+export default Home;
