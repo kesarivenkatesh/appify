@@ -56,10 +56,13 @@ class JournalService {
 
     async delete(journalDetails) {
         try {
-            const response = await axios.delete("/journal", journalDetails, {
+            console.log("journal: ", journalDetails.title);
+            const body = {"title": journalDetails.title}
+            const response = await axios.delete("/journal", {
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                data: body
             });
             return response;
         } catch(error) {

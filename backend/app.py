@@ -105,11 +105,39 @@ def logout():
 
 @app.post('/journal')
 def create_journal():
-    pass
+    if 'user' not in session:
+        return jsonify({"message": "Not logged in"}), 403
+    try:
+        print('1st')
+        journal_data = request.get_json()
+        print("2nd")
+        journal_data["username"] = session['user']
+        journals_collection.insert_one(journal_data)
+        return jsonify({"message": "Journal entry created successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": f"Failed to create journal entry: {str(e)}"}), 500
+    
 
 @app.get('/journal')
 def read_journals():
-    pass
+    def remove_id(data):
+        if isinstance(data, dict) and '_id' in data:
+            del data['_id']
+        return data
+    
+    if 'user' not in session:
+        return jsonify({"message": "Not logged in"}), 403
+    try:
+        username = session['user']
+        user_journals = list(journals_collection.find({"username": username}))
+        # print(user_journals)
+        for i in user_journals:
+            if isinstance(i, dict) and '_id' in i:
+                del i['_id']
+
+        return user_journals, 200
+    except Exception as e:
+        return jsonify({"error": f"Failed to read journal entries: {str(e)}"}), 500
 
 @app.put('/journal')
 def update_journal():
@@ -117,7 +145,25 @@ def update_journal():
 
 @app.delete('/journal')
 def delete_journal():
-    pass
+    if 'user' not in session:
+        return jsonify({"message": "Not logged in"}), 403
+
+    try:
+        data = request.get_json()
+        print(data)
+        title = data.get('title')
+
+        if not title:
+            return jsonify({"error": "Journal title is required"}), 400
+
+        result = journals_collection.delete_one({"title": title, "username": session['user']})
+
+        if result.deleted_count == 1:
+            return jsonify({"message": "Journal entry deleted successfully"}), 200
+        else:
+            return jsonify({"error": "Journal entry not found or you do not have permission to delete it"}), 404
+    except Exception as e:
+        return jsonify({"error": f"Failed to delete journal entry: {str(e)}"}), 500
 
 
 if __name__=="__main__":

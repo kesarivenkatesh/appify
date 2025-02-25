@@ -53,6 +53,15 @@ class UserService {
         throw error;
       }
     }
+
+    async logout() {
+      try {
+        const response = await axios.get("/logout");
+        return response;
+      } catch(error) {
+        console.error(error);
+      }
+    }
 }
 
 export default UserService;

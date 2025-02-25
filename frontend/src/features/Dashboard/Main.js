@@ -1,9 +1,10 @@
 import {useNavigate} from 'react-router';
 import { Heart, Brain, BookHeart, Music, Video } from 'lucide-react';
 
+
 const Main =() =>{
-    const navigate = useNavigate();
     
+    const navigate = useNavigate();
     
     return (
       <div className="page-container">
@@ -33,7 +34,7 @@ const Main =() =>{
             <FeatureCard
               icon={<BookHeart size={32} color="#7C3AED" />}
               title="Journal"
-              onClick={() => navigate('/journal')}
+              redirect='/journal'
               description="Express your thoughts and feelings in a private, secure space"
             />
             <FeatureCard
@@ -63,14 +64,22 @@ const Main =() =>{
     );
 };
 
-const FeatureCard = ({ icon, title, description }) => (
-  <div className="feature-card">
-    <div className="feature-icon">
-      {icon}
+const FeatureCard = ({ icon, title, description, redirect }) => {
+  const navigate = useNavigate(); // Initialize navigate
+
+  const handleClick = () => {
+    if (redirect) {
+      navigate(redirect);
+    }
+  };
+
+  return (
+    <div className="feature-card" onClick={handleClick}>
+      <div className="feature-icon">{icon}</div>
+      <h3 className="feature-title">{title}</h3>
+      <p className="feature-description">{description}</p>
     </div>
-    <h3 className="feature-title">{title}</h3>
-    <p className="feature-description">{description}</p>
-  </div>
-);
+  );
+};
 
 export default Main;

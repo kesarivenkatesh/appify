@@ -1,7 +1,9 @@
+// Journal.js
+
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router';
-import { BookHeart, Plus, Send, Edit2, Trash2, X, Calendar, Clock, Lock, Tag, Smile, Meh, Frown } from 'lucide-react';
-import { saveJournalEntry, getJournalEntries, updateJournalEntry, deleteJournalEntry } from './api';
+import { BookHeart, Plus, Send, Edit2, Trash2, X, Calendar, Clock, Tag, Smile, Meh, Frown } from 'lucide-react';
+import JournalService from '../../../services/JournalService'; // Import JournalService
+
 
 const Journal = () => {
   const [entries, setEntries] = useState([]);
@@ -15,7 +17,8 @@ const Journal = () => {
   });
   const [newTag, setNewTag] = useState('');
   const [error, setError] = useState('');
-  const isAuthenticated = !!localStorage.getItem('token');
+  const isAuthenticated = true;
+  const journalService = new JournalService(); // Instantiate JournalService
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -25,7 +28,7 @@ const Journal = () => {
 
   const fetchEntries = async () => {
     try {
-      const response = await getJournalEntries();
+      const response = await journalService.read();
       setEntries(response.data);
     } catch (err) {
       setError('Failed to load journal entries');
@@ -46,14 +49,15 @@ const Journal = () => {
 
     try {
       if (editingEntry) {
-        await updateJournalEntry(editingEntry._id, {
+        await journalService.update({
+          id: editingEntry._id,
           title: newEntry.title,
           content: newEntry.content,
           mood: newEntry.mood,
           tags: newEntry.tags,
         });
       } else {
-        await saveJournalEntry({
+        await journalService.create({
           title: newEntry.title,
           content: newEntry.content,
           mood: newEntry.mood,
@@ -119,14 +123,14 @@ const Journal = () => {
     setIsWriting(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (entry) => {
     if (!isAuthenticated) {
       setError('Please sign in to delete journal entries');
       return;
     }
     if (window.confirm('Are you sure you want to delete this entry?')) {
       try {
-        await deleteJournalEntry(id);
+        await journalService.delete(entry);
         fetchEntries();
       } catch (err) {
         setError('Failed to delete journal entry');
@@ -149,40 +153,6 @@ const Journal = () => {
       minute: '2-digit',
     });
   };
-
-  if (!isAuthenticated && !isWriting) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center py-16 bg-white rounded-xl shadow-lg">
-          <BookHeart className="h-20 w-20 text-purple-200 mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Welcome to Your Journal</h1>
-          <p className="text-gray-600 mb-8 max-w-md mx-auto">
-            Start your journaling journey today. Create an account to save your entries and track your progress.
-          </p>
-          <div className="space-x-4">
-            <Link
-              to="/register"
-              className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
-            >
-              Create Account
-            </Link>
-            <Link
-              to="/login"
-              className="inline-flex items-center px-6 py-3 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
-            >
-              Sign In
-            </Link>
-          </div>
-          <button
-            onClick={() => setIsWriting(true)}
-            className="mt-6 text-gray-600 hover:text-purple-600 transition-colors"
-          >
-            Continue without account
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -208,18 +178,6 @@ const Journal = () => {
           <button onClick={() => setError('')} className="text-red-400 hover:text-red-500">
             <X className="h-5 w-5" />
           </button>
-        </div>
-      )}
-
-      {!isAuthenticated && (
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 p-4 rounded-lg mb-6 flex items-center gap-2">
-          <Lock className="h-5 w-5 flex-shrink-0" />
-          <p>
-            Sign in to save your entries.{' '}
-            <Link to="/login" className="font-medium text-yellow-800 hover:text-yellow-900">
-              Sign in now
-            </Link>
-          </p>
         </div>
       )}
 
@@ -326,12 +284,12 @@ const Journal = () => {
                 className="flex items-center gap-2 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
               >
                 <Send className="h-5 w-5" />
-                {!isAuthenticated ? 'Continue as Guest' : editingEntry ? 'Update' : 'Save'}
+                {editingEntry ? 'Update' : 'Save'}
               </button>
             </div>
           </form>
         </div>
-      ) : isAuthenticated && entries.length === 0 ? (
+      ) :  entries.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-xl shadow-sm max-w-3xl mx-auto">
           <BookHeart className="h-16 w-16 text-purple-200 mx-auto mb-4" />
           <h3 className="text-xl font-medium text-gray-900 mb-2">Your Journal Awaits</h3>
@@ -362,7 +320,7 @@ const Journal = () => {
                       <Edit2 className="h-5 w-5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(entry._id)}
+                      onClick={() => handleDelete(entry)}
                       className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                     >
                       <Trash2 className="h-5 w-5" />
