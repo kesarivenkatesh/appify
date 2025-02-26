@@ -25,7 +25,7 @@ class JournalService {
         }
     }
 
-    async read(journalId) {
+    async read() {
         try {
             const response = await axios.get("/journal", {
                 headers: {
@@ -55,8 +55,7 @@ class JournalService {
 
     async delete(journalDetails) {
         try {
-            console.log("journal: ", journalDetails.title);
-            const body = {"title": journalDetails.title}
+            const body = {"_id": journalDetails._id}
             const response = await axios.delete("/journal", {
                 headers: {
                     'Content-Type': 'application/json'

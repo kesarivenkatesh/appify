@@ -110,9 +110,7 @@ def create_journal():
     if 'user' not in session:
         return jsonify({"message": "Not logged in"}), 403
     try:
-        print('1st')
         journal_data = request.get_json()
-        print("2nd")
         journal_data["username"] = session['user']
         journals_collection.insert_one(journal_data)
         return jsonify({"message": "Journal entry created successfully"}), 201
@@ -137,7 +135,20 @@ def read_journals():
 
 @app.put('/journal')
 def update_journal():
-    pass
+    if 'user' not in session:
+        return jsonify({"message": "Not logged in"}), 403
+    try:
+        journal_data = request.get_json()
+        print(journal_data)
+        oid = journal_data["_id"]["$oid"]
+        journalId = ObjectId(oid)
+        journal_data.pop("_id")
+        print(journal_data)
+        journals_collection.update_one({"_id": journalId}, {"$set": journal_data})
+
+        return jsonify({"message": "update successful"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Failed to update journal entries: {str(e)}"}), 500
 
 @app.delete('/journal')
 def delete_journal():
@@ -147,12 +158,12 @@ def delete_journal():
     try:
         data = request.get_json()
         print(data)
-        title = data.get('title')
+        oid = data.get('_id').get('$oid')
 
-        if not title:
-            return jsonify({"error": "Journal title is required"}), 400
+        if not oid:
+            return jsonify({"error": "Journal id is required"}), 400
 
-        result = journals_collection.delete_one({"title": title, "username": session['user']})
+        result = journals_collection.delete_one({"_id": ObjectId(oid)})
 
         if result.deleted_count == 1:
             return jsonify({"message": "Journal entry deleted successfully"}), 200

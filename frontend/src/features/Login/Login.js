@@ -36,7 +36,6 @@ function Login() {
     const login = () => {
         new UserService().login(user.username, user.password)
             .then(response => {
-                console.log(response, response.data.message);
                 if(response.status === 200 && response.data.message === "Login successful") {
                     navigate("/dashboard");
                 }

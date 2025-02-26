@@ -48,7 +48,7 @@ const Journal = () => {
     try {
       if (editingEntry) {
         await journalService.update({
-          id: editingEntry._id,
+          _id: editingEntry._id,
           title: newEntry.title,
           content: newEntry.content,
           mood: newEntry.mood,
