@@ -1,8 +1,6 @@
-// Journal.js
-
 import { useState, useEffect } from 'react';
 import { BookHeart, Plus, Send, Edit2, Trash2, X, Calendar, Clock, Tag, Smile, Meh, Frown } from 'lucide-react';
-import JournalService from '../../../services/JournalService'; // Import JournalService
+import JournalService from '../../../services/JournalService';
 
 
 const Journal = () => {
@@ -18,7 +16,7 @@ const Journal = () => {
   const [newTag, setNewTag] = useState('');
   const [error, setError] = useState('');
   const isAuthenticated = true;
-  const journalService = new JournalService(); // Instantiate JournalService
+  const journalService = new JournalService();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -182,7 +180,7 @@ const Journal = () => {
       )}
 
       {isWriting ? (
-        <div className="bg-white rounded-xl shadow-lg mb-8 overflow-hidden max-w-3xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg mb-8 overflow-auto max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="p-6">
             <div className="mb-6">
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
@@ -303,9 +301,9 @@ const Journal = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 max-h-[80vh] overflow-y-auto whitespace-nowrap md:grid-cols-2 gap-6 max-w-6xl mx-auto">
           {entries.map((entry) => (
-            <div key={entry._id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full flex flex-col">
+            <div key={entry._id.$oid} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-auto h-full flex flex-col">
               <div className="p-6 flex flex-col flex-grow">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3">

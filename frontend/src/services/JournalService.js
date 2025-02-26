@@ -29,8 +29,7 @@ class JournalService {
         try {
             const response = await axios.get("/journal", {
                 headers: {
-                    'Content-Type': 'application/json',
-                    'journal-id': journalId
+                    'Content-Type': 'application/json'
                 }
             });
             return response;

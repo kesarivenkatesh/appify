@@ -5,6 +5,8 @@ from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 from argon2 import PasswordHasher
+from bson import ObjectId, json_util
+import json
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -120,20 +122,14 @@ def create_journal():
 
 @app.get('/journal')
 def read_journals():
-    def remove_id(data):
-        if isinstance(data, dict) and '_id' in data:
-            del data['_id']
-        return data
-    
     if 'user' not in session:
         return jsonify({"message": "Not logged in"}), 403
     try:
         username = session['user']
         user_journals = list(journals_collection.find({"username": username}))
         # print(user_journals)
-        for i in user_journals:
-            if isinstance(i, dict) and '_id' in i:
-                del i['_id']
+        user_journals = json.loads(json_util.dumps(user_journals))
+        # print(user_journals)
 
         return user_journals, 200
     except Exception as e:
