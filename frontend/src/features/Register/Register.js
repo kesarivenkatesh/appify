@@ -1,98 +1,158 @@
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
-import '../Login/Login.css'
-import UserService from '../../services/UserService'
+import '../Register/Register.css'; // Make sure to update the CSS accordingly
+import UserService from '../../services/UserService';
 
 function Register() {
     const navigate = useNavigate();
-
     const [user, setUser] = useState({
         username: "",
-        firstname: "",
-        lastname: "",
+        email: "",
         password: "",
+        confirmPassword: ""
     });
 
-    const [errors] = useState({
+    const [errors, setErrors] = useState({
         username: "",
-        firstname: "",
-        lastname: "",
+        email: "",
         password: "",
+        confirmPassword: ""
     });
 
-    const redirect = () => {
-        navigate("/login");
+    const validateForm = () => {
+        let isValid = true;
+        const newErrors = {
+            username: "",
+            email: "",
+            password: "",
+            confirmPassword: ""
+        };
+
+        // Username validation
+        if (user.username.length < 5) {
+            newErrors.username = "Username must be at least 5 characters";
+            isValid = false;
+        }
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(user.email)) {
+            newErrors.email = "Invalid email address";
+            isValid = false;
+        }
+
+        // Password validation
+        if (user.password.length < 6) {
+            newErrors.password = "Password must be at least 6 characters";
+            isValid = false;
+        }
+
+        // Confirm Password validation
+        if (user.password !== user.confirmPassword) {
+            newErrors.confirmPassword = "Passwords do not match";
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+        return isValid;
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        setUser(prev => ({
+            ...prev,
+            [name]: value
+        }));
 
-        switch (name) {
-            case "username":
-                errors.username = value.length < 5 ? "Username must be atleast 5 characters" : "";
-                break;
-            case "password":
-                errors.password = value.length < 5 ? "Password must be atleast 5 characters" : "";
-                break;
-            case "firstname":
-                errors.firstname = value.length > 15 ? "First Name must be less than 15 characters" : "";
-                if(errors.firstname==="") {
-                    errors.firstname = value.length === 0 ? "First Name cannot be empty" : "";
-                }
-                break;
-            case "lastname":
-                errors.lastname = value.length > 10 ? "Last Name Max must be less than 10 characters" : "";
-                if(errors.firstname==="") {
-                    errors.lastname = value.length === 0 ? "Last Name cannot be empty" : "";
-                }
-                break;
-            default:
-                break;
-        }
-
-        setUser({ ...user, [name]: value });
+        // Clear error when user starts typing
+        setErrors(prev => ({
+            ...prev,
+            [name]: ""
+        }));
     };
 
-    
-    const register = () => {
-        const body = {
-            "firstname": user.firstname,
-            "lastname": user.lastname
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+          await new UserService().register({
+            username: user.username,
+            email: user.email,
+            password: user.password,
+            confirmPassword: user.confirmPassword
+          });
+          navigate('/login');
+        } catch (error) {
+          setErrors(error.message);
         }
-        new UserService().register(body, user.username, user.password)
-            .then(response => {
-                console.log(response, response.data.message);
-                if(response.status === 201 && response.data.message === "User registered successfully") {
-                    navigate("/login");
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-        
     };
+
+    const redirectToLogin = () => {
+        navigate("/login");
+    };
+
     return (
-        <div>
-            <div className="video-background">
-                <video autoPlay loop muted>
-                    <source src="/assets/videos/female-avatar-animation.mp4" type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            <div className="container">
-                <h1 className="title">Register</h1>
-                <div className="register-form" id="registerForm">
-                    <input type="text" placeholder="Username" id="username" name='username' onChange={(e) => handleChange(e)} />
-                    {errors.username.length > 0 && (<span className="error">{errors.username}</span>)}
-                    <input type="password" placeholder="Password" id="password" name='password' onChange={(e) => handleChange(e)} />
-                    {errors.password.length > 0 && (<span className="error">{errors.password}</span>)}
-                    <input type="text" placeholder="First Name" id="firstname" name='firstname' onChange={(e) => handleChange(e)} />
-                    {errors.firstname.length > 0 && (<span className="error">{errors.firstname}</span>)}
-                    <input type="text" placeholder="Last Name" id="lastname" name='lastname' onChange={(e) => handleChange(e)} />
-                    {errors.lastname.length > 0 && (<span className="error">{errors.lastname}</span>)}
-                    <button id="register" onClick={register}>Register</button>
+        <div className="app-container">
+            <div className="card">
+                <h2>Create Account</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="username">Username</label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            value={user.username}
+                            onChange={handleChange}
+                            className={errors.username ? 'error' : ''}
+                        />
+                        {errors.username && <span className="error-message">{errors.username}</span>}
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="email">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={user.email}
+                            onChange={handleChange}
+                            className={errors.email ? 'error' : ''}
+                        />
+                        {errors.email && <span className="error-message">{errors.email}</span>}
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            value={user.password}
+                            onChange={handleChange}
+                            className={errors.password ? 'error' : ''}
+                        />
+                        {errors.password && <span className="error-message">{errors.password}</span>}
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="confirmPassword">Confirm Password</label>
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            value={user.confirmPassword}
+                            onChange={handleChange}
+                            className={errors.confirmPassword ? 'error' : ''}
+                        />
+                        {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+                    </div>
+
+                    <button type="submit">Register</button>
+                </form>
+
+                <div className="login-link">
+                    Already have an account? <button onClick={redirectToLogin}>Login here</button>
                 </div>
-                <p>Already have an account? <button onClick={redirect}>Login here</button></p>
             </div>
         </div>
     );

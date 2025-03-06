@@ -1,23 +1,43 @@
-from flask import Flask, request, session, jsonify
+import datetime
+from flask import Flask, request, session, jsonify, make_response
 from pymongo import MongoClient
-import base64
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 from argon2 import PasswordHasher
 from bson import ObjectId, json_util
 import json
+from pymongo.errors import DuplicateKeyError
+import base64
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
-CORS(app, origins="http://localhost:3006")
+app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SECURE"] = True  # In production
+CORS(app, origins="http://localhost:3007")
 
 load_dotenv()
 connection = MongoClient(os.getenv("CONNECTION_STRING"))
-db = connection["appifydb"]  # Replace with your database name
+db = connection["appifydb"]
 users_collection = db["users"]
 journals_collection = db["journals"]
 
+
+# Create unique index for username
+users_collection.create_index("username", unique=True)
+
+def get_auth_user():
+    return session.get('user')
+
+@app.route('/api/current-user', methods=['GET'])
+def current_user():
+    if 'user' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    return jsonify({
+        "username": session['user'],
+        "email": session.get('email')  # Add other session data if needed
+    })
 
 # get username and password from header
 def get_username_password_from_request():
@@ -38,40 +58,53 @@ def get_username_password_from_request():
 
 @app.post("/register")
 def insert_user():
-    if 'user' in session:
-        return jsonify({"message": "Already logged in"}), 406
-    creds, error_message = get_username_password_from_request()
-
-    if creds:
-        username = creds.get("username")
-        password = creds.get("password")
+    try:
+        # Get and validate JSON data
         user_data = request.get_json()
-        firstname = user_data.get('firstname')
-        lastname = user_data.get('lastname')
-        # basic checks
-        if not username or not password or not firstname or not lastname:
-            return jsonify({"error": "Missing required fields"}), 400
-        # check if username already exists
-        if users_collection.find_one({"username": username}):
-            return jsonify({"error": "Username already exists"}), 400
-        # if not hash password by argon2
-        ph = PasswordHasher()
-        hashed_password = ph.hash(password.encode('utf-8'))
-        # add details to database
-        try:
-            users_collection.insert_one({
-                "username": username,
-                "password": hashed_password,
-                "firstname": firstname,
-                "lastname": lastname
-            })
-        # else error
-        except Exception as e:
-            return jsonify({"error": f"Database error: {str(e)}"}), 500
-        return jsonify({"message": "User registered successfully"}), 201
-    else:
-        return jsonify({"error": error_message}), 401
+        if not user_data or not isinstance(user_data, dict):
+            return jsonify({"error": "Invalid request format"}), 400
 
+        # Validate required fields
+        required_fields = ['username', 'email', 'password', 'confirm_password']
+        missing = [field for field in required_fields if field not in user_data]
+        if missing:
+            return jsonify({
+                "error": "Missing required fields",
+                "missing": missing
+            }), 400
+
+        # Check password match
+        if user_data['password'] != user_data['confirm_password']:
+            return jsonify({"error": "Passwords do not match"}), 400
+
+        # Check existing user
+        if users_collection.find_one({"username": user_data['username']}):
+            return jsonify({"error": "Username already exists"}), 409
+
+        # Hash password
+        ph = PasswordHasher()
+        hashed_password = ph.hash(user_data['password'])
+
+        # Create user document
+        new_user = {
+            "username": user_data['username'],
+            "email": user_data['email'],
+            "password": hashed_password,
+            "created_at": datetime.datetime.now()
+        }
+
+        # Insert user
+        result = users_collection.insert_one(new_user)
+        
+        return jsonify({
+            "message": "Registration successful",
+            "user_id": str(result.inserted_id)
+        }), 201
+
+    except Exception as e:
+        app.logger.error(f"Registration error: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+    
 @app.get("/login")
 def get_user():
     if 'user' in session:
@@ -94,17 +127,22 @@ def get_user():
         if hashed_password and ph.verify(hashed_password, password.encode('utf-8')):
             # if matches, return cookie with set-cookie header
             session['user']=username
-            return jsonify({"message": "Login successful"}), 200
+            response = make_response(jsonify({"message": "Login successful"}), 200)
+            response.set_cookie('valid', 'true', httponly=False)
+            return response
         else:
             return jsonify({"error": error_message}), 401
     else:
         return jsonify({"error": error_message}), 401
-
+    
 @app.route('/logout')
 def logout():
-	session.pop('user', None)
-	return jsonify({"message": "Logout successful"}), 200
+    response = make_response(jsonify({"message": "Logout successful"}), 200)
+    session.clear()
+    response.delete_cookie('valid')
+    return response
 
+# Journal endpoints
 @app.post('/journal')
 def create_journal():
     if 'user' not in session:
@@ -173,5 +211,5 @@ def delete_journal():
         return jsonify({"error": f"Failed to delete journal entry: {str(e)}"}), 500
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     app.run(port=8000, debug=True)

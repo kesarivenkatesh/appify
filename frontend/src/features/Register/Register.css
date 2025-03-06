@@ -1,19 +1,29 @@
-/* Login.css */
-
+/* Register.css */
+.app-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #f0f2f5;
+    min-width: 60vh;
+    padding-top: 80pt;
+  }
   
   .card {
     background: #fff;
-    padding: 2rem;
+    padding: 2rem 4rem;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
+    width: 120%;
+    height:70%;
+    max-width: 500px;
   }
   
   h2 {
     text-align: center;
     color: #7C3AED;
     margin-bottom: 1.5rem;
+    font-size: 2rem;
   }
   
   .form-group {
@@ -32,13 +42,14 @@
     padding: 0.8rem;
     border: 1px solid #ddd;
     border-radius: 5px;
-    font-size: 0.5rem;
+    font-size: 0.8rem;
     margin-top: 0.3rem;
+    
   }
   
   input:focus {
     outline: none;
-    border-color: #7C3AED;
+    border-color: #1a73e8;
     box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
   }
   
@@ -92,11 +103,7 @@
     display: block;
   }
   
-  .server-error {
-    text-align: center;
-    margin-bottom: 1rem;
-  }
-  
+  /* Add media query for mobile responsiveness */
   @media (max-width: 480px) {
     .card {
       padding: 1.5rem;

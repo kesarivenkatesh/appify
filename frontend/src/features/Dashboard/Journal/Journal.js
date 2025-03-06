@@ -153,8 +153,8 @@ const Journal = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="max-w-6xl mx-auto px-4 ">
+      <div className="flex justify-between items-center mb-8 pt-14">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Journal</h1>
           <p className="text-gray-600">A safe space for your thoughts and feelings</p>
@@ -302,7 +302,7 @@ const Journal = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 max-h-[80vh] overflow-y-auto whitespace-nowrap md:grid-cols-2 gap-6 max-w-6xl mx-auto">
-          {entries.map((entry) => (
+          {entries.slice(0).reverse().map((entry) => (
             <div key={entry._id.$oid} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-auto h-full flex flex-col">
               <div className="p-6 flex flex-col flex-grow">
                 <div className="flex justify-between items-start mb-4">

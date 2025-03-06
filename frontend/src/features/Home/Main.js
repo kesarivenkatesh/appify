@@ -15,7 +15,7 @@ const Main =() =>{
             <p className="hero-subtitle">
               A safe space for your mental wellbeing journey
             </p>
-            <span className="primary-button">
+            <span className="primary-button" redirect='/register'>
             Start Your Journey
             <Heart size={25} />
               
@@ -34,7 +34,6 @@ const Main =() =>{
             <FeatureCard
               icon={<BookHeart size={32} color="#7C3AED" />}
               title="Journal"
-              redirect='/journal'
               description="Express your thoughts and feelings in a private, secure space"
             />
             <FeatureCard
