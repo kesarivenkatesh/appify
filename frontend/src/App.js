@@ -3,6 +3,7 @@ import Login from './features/Login/Login.js';
 import Register from './features/Register/Register.js';
 import Dashboard from './features/Dashboard/Dashboard.js'
 import Journal from './features/Dashboard/Journal/Journal.js';
+import Music from './features/Dashboard/Music/Music.js';
 import Home from './features/Home/Home.js';
 import Header from './features/Home/Header.js';
 import { useState, useEffect } from 'react';
@@ -24,6 +25,7 @@ function App() {
               <Route path='/register' element={<Register />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/journal" element={<Journal />} />
+              <Route path="/music" element={<Music />} />
             </Routes>
           </BrowserRouter>
       </AuthProvider>
