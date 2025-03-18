@@ -84,7 +84,7 @@ const Dashboard = () => {
       icon: <Music className="icon purple" />,
       title: 'Calming Music',
       description: 'Listen to soothing tracks',
-      //path: '/music',
+      path: '/music',
       colorClass: 'purple-bg'
     },
     {

@@ -9,12 +9,13 @@ from bson import ObjectId, json_util
 import json
 from pymongo.errors import DuplicateKeyError
 import base64
+from bson.json_util import dumps
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SECURE"] = True  # In production
-CORS(app, origins="http://localhost:3007")
+CORS(app, resources={r"/*": {"origins": "http://localhost:3006"}})
 
 load_dotenv()
 connection = MongoClient(os.getenv("CONNECTION_STRING"))
@@ -22,12 +23,23 @@ db = connection["appifydb"]
 users_collection = db["users"]
 journals_collection = db["journals"]
 
-
+music_collection = db["music"]
 # Create unique index for username
 users_collection.create_index("username", unique=True)
 
 def get_auth_user():
     return session.get('user')
+
+# Add endpoint to retrieve calming music
+@app.route('/music', methods=['GET'])
+def get_music():
+    try:
+        music_list = list(music_collection.find({"genre": "calming"}))  # Filter by genre "calming"
+        music_list = json.loads(dumps(music_list))  # Convert MongoDB result to JSON format
+        return jsonify({"music": music_list}), 200
+    except Exception as e:
+        return jsonify({"error": f"Failed to retrieve music: {str(e)}"}), 500
+
 
 @app.route('/api/current-user', methods=['GET'])
 def current_user():
