@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { 
   Smile, Brain, Music, Dumbbell, BookHeart, 
-  TrendingUp, Calendar, Award, Clock, Quote 
+  TrendingUp, Calendar, Award, Clock, Quote, Laugh 
 } from 'lucide-react';
 import UserService from '../../services/UserService';
 import './Dashboard.css';
+import JournalService from '../../services/JournalService';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState('');
+  const [journalCount, setJournalCount] = useState(0);
   const [stats, setStats] = useState({
     totalJournalEntries: 0,
     lastMood: 'neutral',
@@ -22,6 +24,9 @@ const Dashboard = () => {
       const userData = await new UserService().getCurrentUser();
       if (userData) {
         setUser(userData);
+         // Fetch journal count
+         const countResponse = await new JournalService().getJournalCount();
+         setJournalCount(countResponse);
       } else {
         // Redirect to login if not authenticated
         window.location.href = '/login';
@@ -41,7 +46,7 @@ const Dashboard = () => {
     {
       icon: <BookHeart className="icon pink" />,
       title: 'Journal Entries',
-      value: stats.totalJournalEntries,
+      value: journalCount,
       colorClass: 'pink-bg'
     },
     {
@@ -70,7 +75,7 @@ const Dashboard = () => {
       icon: <Smile className="icon yellow" />,
       title: 'Mood Check',
       description: 'How are you feeling today?',
-      //path: '/mood',
+      path: '/moodcheck',
       colorClass: 'yellow-bg'
     },
     {
@@ -91,14 +96,14 @@ const Dashboard = () => {
       icon: <Brain className="icon blue" />,
       title: 'Meditation',
       description: 'Clear your mind',
-      //path: '/meditation',
+      path: '/meditation',
       colorClass: 'blue-bg'
     },
     {
       icon: <Dumbbell className="icon green" />,
       title: 'Exercise',
       description: 'Stay active',
-      //path: '/exercise',
+      path: '/exercise',
       colorClass: 'green-bg'
     },
     // New Quotes Action
@@ -106,8 +111,15 @@ const Dashboard = () => {
       icon: <Quote className="icon orange" />,
       title: 'Inspirational Quotes',
       description: 'Get daily motivation',
-      //path: '/quotes',
+      path: '/motivation',
       colorClass: 'orange-bg'
+    },
+    {
+        icon: <Laugh className="icon yellow" />,
+        title: 'Laugh Out Loud',
+        description: 'Keep laughing Out Loud',
+        path: '/laughoutloud',
+        colorClass: 'pink-bg'
     }
   ];
 

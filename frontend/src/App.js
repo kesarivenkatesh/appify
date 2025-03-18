@@ -6,8 +6,12 @@ import Journal from './features/Dashboard/Journal/Journal.js';
 import Music from './features/Dashboard/Music/Music.js';
 import Home from './features/Home/Home.js';
 import Header from './features/Home/Header.js';
-import { useState, useEffect } from 'react';
+import Motivation from './features/Dashboard/MotivationalContent/Motivation.js';
+import Exercise from './features/Dashboard/Exercise/Exercise.js';
+import Meditation from './features/Dashboard/Meditation/Meditation.js';
 import { AuthProvider } from './features/AuthContext/AuthContext.js';
+import MoodCheck from './features/Dashboard/MoodCheck/MoodCheck.js';
+import LaughOutLoud from './features/Dashboard/LaughOutLoud/LaughOutLoud.js';
 
 
 function App() {
@@ -25,7 +29,16 @@ function App() {
               <Route path='/register' element={<Register />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/journal" element={<Journal />} />
+
               <Route path="/music" element={<Music />} />
+
+              <Route path="/motivation" element={<Motivation />} />
+              <Route path="/meditation" element={<Meditation />} />
+              <Route path="/exercise" element={<Exercise />} />
+              <Route path="/moodcheck" element={<MoodCheck />} />
+              <Route path="/laughoutloud" element={<LaughOutLoud />} />
+
+
             </Routes>
           </BrowserRouter>
       </AuthProvider>

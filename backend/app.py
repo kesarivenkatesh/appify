@@ -183,6 +183,17 @@ def read_journals():
     except Exception as e:
         return jsonify({"error": f"Failed to read journal entries: {str(e)}"}), 500
 
+@app.route('/journal/count', methods=['GET'])
+def journal_count():
+    if 'user' not in session:
+        return jsonify({"message": "Not logged in"}), 403
+    try:
+        username = session['user']
+        count = journals_collection.count_documents({'username': username})
+        return jsonify({'count': count})
+    except Exception as e:
+        return jsonify({"error": f"Failed to get the count of journal entries: {str(e)}"}), 500
+
 @app.put('/journal')
 def update_journal():
     if 'user' not in session:
