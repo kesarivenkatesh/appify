@@ -1,5 +1,5 @@
 /* Main container */
-.motivation-container {
+.laugh-container {
     font-family: Arial, sans-serif;
     margin: 0 auto;
     padding: 20px;
@@ -7,17 +7,17 @@
   }
   
   /* Sticky Header */
-  .motivation-sticky-header {
+  .laugh-sticky-header {
     position: sticky;
     top: 0;
     z-index: 10;
-    background-color: #f3f4f6;
+    background-color: #fef08a;
     padding: 10px 20px;
     border-bottom: 2px solid #ddd;
   }
   
   /* Header Section */
-  .motivation-header {
+  .laugh-header {
     text-align: center;
     padding: 10px;
   }
@@ -25,45 +25,12 @@
   .header-title {
     font-size: 2.5rem;
     font-weight: bold;
+    color: #f59e0b;
   }
   
   .header-description {
     font-size: 1.2rem;
     color: #555;
-  }
-  
-  /* Quote Box */
-  .quote-box {
-    margin: 20px auto;
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .quote-text {
-    font-size: 1.5rem;
-    font-style: italic;
-    color: #4b5563;
-  }
-  
-  .quote-author {
-    margin-top: 10px;
-    font-size: 1rem;
-    color: #6d28d9;
-  }
-  
-  .quote-button {
-    background-color: #6d28d9;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 10px 20px;
-    cursor: pointer;
-  }
-  
-  .quote-button:hover {
-    background-color: #7e3af2;
   }
   
   /* Category Navigation */
@@ -74,7 +41,7 @@
   }
   
   .category-button {
-    background-color: #ddd;
+    background-color: #d1d5db;
     padding: 10px 15px;
     border-radius: 10px;
     cursor: pointer;
@@ -82,7 +49,7 @@
   }
   
   .category-button.active {
-    background-color: #6d28d9;
+    background-color: #f59e0b;
     color: white;
   }
   

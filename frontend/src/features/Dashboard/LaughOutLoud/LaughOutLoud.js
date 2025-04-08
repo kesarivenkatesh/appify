@@ -1,85 +1,98 @@
-import React, { useState } from 'react';
-import { VideoPlayer } from '../VideoPlayer';
+import React, { useState } from "react";
+import { VideoPlayer } from "../VideoPlayer";
+import { 
+  Smile, 
+  Cat, 
+  Film, 
+} from 'lucide-react';
+import "./LaughOutLoud.css";
 
-const allJokes = [
-  { setup: "Why don't scientists trust atoms?", punchline: "Because they make up everything!" },
-  { setup: "What did the grape say when it got stepped on?", punchline: "Nothing, it just let out a little wine!" },
-  { setup: "Why did the scarecrow win an award?", punchline: "Because he was outstanding in his field!" },
-  { setup: "What do you call a bear with no teeth?", punchline: "A gummy bear!" },
-  { setup: "What do you call a fake noodle?", punchline: "An impasta!" },
-  { setup: "Why did the cookie go to the doctor?", punchline: "Because it was feeling crumbly!" }
-];
+// Funny video categories
+const funnyVideos = {
+  animation: [
+    { id: "_gJ2huEmO8", title: "Funny Animation Compilation", description: "Hilarious animated clips to brighten your day.", duration: "1 mins" },
+    { id: "eQqdkEU_bng", title: "Cartoon Laughs", description: "Side-splitting cartoons for all ages.", duration: "1 mins" },
+    { id: "jNb-wvzw1bk", title:"Cartoon Funny Compilation",description:"Why Mum!",duration:"1 min"}
+  ],
+  animals: [
+    { id: "Po098TRdOn4", title: "Funny Animal Videos", description: "Watch animals being unexpectedly funny.", duration: "1 mins" },
+    { id: "psw2oBWCCbs", title: "Cute and Hilarious Pets", description: "Adorable and mischievous pet moments.", duration: "1 mins" },
+  ],
+  emojis: [
+    { id: "uT8wT34BrIs", title: "Emoji Faces in Real Life", description: "Laugh with emoji-inspired antics.", duration: "1 mins" },
+    { id: "r0bqGUydUZc", title: "Funny Emoji Videos Compilation", description: "Emoji humor guaranteed to crack you up.", duration: "2 mins" },
+  ],
+};
 
-const allVideos = [
-  { id: 'VB4CCHHYOqY', title: 'Best Funny Videos Compilation' },
-  { id: 'DODLEX4zzLQ', title: 'Try Not To Laugh Challenge' },
-  { id: 'i_gJ2huEmO8', title: 'Try Not To Laugh Challenge 1' },
-  { id: 'eQqdkEU_bng', title: 'Try Not To Laugh Challenge 2' },
-  { id: '4pVaDM_BwIA', title: 'Try Not To Laugh Challenge 3' },
-  { id: '1AIXo0PXC-w', title: 'Try Not To Laugh Challenge 4' }
-];
+// Category configuration for styling and icons
+const categoryConfig = {
+  animation: { 
+    icon: <Film className="text-yellow-500" />, 
+    title: "Funny Animation Videos", 
+    description: "Enjoy the best animated humor." 
+  },
+  animals: { 
+    icon: <Cat className="text-green-500" />, 
+    title: "Funny Animal Videos", 
+    description: "Hilarious moments with animals." 
+  },
+  emojis: { 
+    icon: <Smile className="text-blue-500" />, 
+    title: "Funny Emoji Videos", 
+    description: "Creative and laughable emoji moments." 
+  }
+};
 
 const LaughOutLoud = () => {
-  const [currentJokeIndex, setCurrentJokeIndex] = useState(0);
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const [showPunchline, setShowPunchline] = useState(false);
-
-  const getNextJoke = () => {
-    setCurrentJokeIndex((prevIndex) => 
-      prevIndex === allJokes.length - 1 ? 0 : prevIndex + 1
-    );
-    setShowPunchline(false);
-  };
-
-  const getNextVideo = () => {
-    setCurrentVideoIndex((prevIndex) => 
-      prevIndex === allVideos.length - 1 ? 0 : prevIndex + 1
-    );
-  };
+  const [activeCategory, setActiveCategory] = useState("animation");
 
   return (
-    <div className="space-y-8">
-      <section className="bg-white rounded-lg shadow-md p-14">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">Daily Jokes</h2>
-          <button 
-            onClick={getNextJoke}
-            className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
-          >
-            New Joke
-          </button>
-        </div>
-        <div className="bg-yellow-50 p-6 rounded-lg">
-          <p className="text-lg font-medium mb-4">{allJokes[currentJokeIndex].setup}</p>
-          {!showPunchline ? (
-            <button 
-              onClick={() => setShowPunchline(true)}
-              className="px-4 py-2 bg-yellow-400 text-yellow-900 rounded-lg hover:bg-yellow-500 transition-colors"
-            >
-              Reveal Punchline
-            </button>
-          ) : (
-            <p className="text-lg text-yellow-600">{allJokes[currentJokeIndex].punchline}</p>
-          )}
-        </div>
-      </section>
+    <div className="laugh-container">
+      {/* Sticky Header */}
+      <div className="laugh-sticky-header">
+        <section className="laugh-header">
+          <h1 className="header-title">Laugh Out Loud</h1>
+          <p className="header-description">
+            Explore hilarious jokes and funny videos across various categories to lift your mood.
+          </p>
+        </section>
 
-      <section className="bg-white rounded-lg shadow-md p-14">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">Funny Videos</h2>
-          <button 
-            onClick={getNextVideo}
-            className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
-          >
-            Next Video
-          </button>
+        {/* Category Navigation */}
+        <div className="category-navigation">
+          {Object.keys(funnyVideos).map((category) => (
+            <button
+              key={category}
+              onClick={() => setActiveCategory(category)}
+              className={`category-button ${activeCategory === category ? "active" : ""}`}
+            >
+              {categoryConfig[category].icon}
+              <span>{categoryConfig[category].title}</span>
+            </button>
+          ))}
         </div>
-        <div className="w-3/4 h-1/4 mx-auto flex flex-col justify-center">
-          <VideoPlayer 
-            videoId={allVideos[currentVideoIndex].id} 
-            title={allVideos[currentVideoIndex].title} 
-          />
-          <h3 className="mt-2 text-lg font-semibold">{allVideos[currentVideoIndex].title}</h3>
+      </div>
+
+      {/* Active Category Section */}
+      <section className="category-content">
+        <div className="category-header">
+          {categoryConfig[activeCategory].icon}
+          <div>
+            <h2 className="category-title">{categoryConfig[activeCategory].title}</h2>
+            <p className="category-description">{categoryConfig[activeCategory].description}</p>
+          </div>
+        </div>
+
+        <div className="video-grid">
+          {funnyVideos[activeCategory].map((video) => (
+            <div key={video.id} className="video-card">
+              <VideoPlayer videoId={video.id} title={video.title} />
+              <div className="video-details">
+                <h3>{video.title}</h3>
+                <p>{video.description}</p>
+                <span>{video.duration}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     </div>

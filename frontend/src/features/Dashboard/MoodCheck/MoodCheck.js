@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Smile, Frown, Meh, Zap, Battery } from 'lucide-react';
+import MoodService from '../../../services/MoodService';
+import { useNavigate } from 'react-router';
 
 const moodOptions = [
   { value: 'happy', label: 'Happy', icon: <Smile className="w-8 h-8" />, color: 'bg-green-100 text-green-600' },
@@ -11,9 +13,32 @@ const moodOptions = [
 
 const MoodCheck = () => {
   const [selectedMood, setSelectedMood] = useState(null);
+  const [isLogging, setIsLogging] = useState(false);
+  const [logSuccess, setLogSuccess] = useState(false);
+  const navigate = useNavigate();
 
-  const handleMoodSelect = (mood) => {
+  const handleMoodSelect = async (mood) => {
     setSelectedMood(mood);
+    setIsLogging(true);
+    
+    try {
+      // Log the mood to the backend
+      const moodService = new MoodService();
+      await moodService.logMood({
+        mood: mood,
+        timestamp: new Date().toISOString()
+      });
+      
+      setLogSuccess(true);
+    } catch (error) {
+      console.error('Failed to log mood:', error);
+    } finally {
+      setIsLogging(false);
+    }
+  };
+
+  const navigateToDashboard = () => {
+    navigate('/');
   };
 
   return (
@@ -29,7 +54,8 @@ const MoodCheck = () => {
                 mood.color
               } p-4 rounded-lg flex flex-col items-center justify-center space-y-2 transition-all ${
                 selectedMood === mood.value ? 'ring-2 ring-offset-2 ring-purple-500' : ''
-              }`}
+              } ${isLogging ? 'opacity-70 cursor-not-allowed' : ''}`}
+              disabled={isLogging}
             >
               {mood.icon}
               <span className="font-medium">{mood.label}</span>
@@ -76,6 +102,16 @@ const MoodCheck = () => {
               </>
             )}
           </ul>
+          {logSuccess && (
+            <div className="mt-6">
+              <button 
+                onClick={navigateToDashboard}
+                className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Return to Dashboard
+              </button>
+            </div>
+          )}
         </section>
       )}
     </div>

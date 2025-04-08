@@ -10,6 +10,7 @@ import json
 from pymongo.errors import DuplicateKeyError
 import base64
 from bson.json_util import dumps
+from collections import Counter
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
@@ -22,13 +23,81 @@ connection = MongoClient(os.getenv("CONNECTION_STRING"))
 db = connection["appifydb"]
 users_collection = db["users"]
 journals_collection = db["journals"]
-
+moods_collection = db["moods"]  # Collection for mood tracking
 music_collection = db["music"]
+activity_collection = db["user_activity"]  # New collection for tracking user activity
+
 # Create unique index for username
 users_collection.create_index("username", unique=True)
 
 def get_auth_user():
     return session.get('user')
+
+# Helper function to record user activity
+def record_activity(username, activity_type):
+    """
+    Record a user activity to track engagement
+    activity_type: string - 'journal', 'mood', 'login', etc.
+    """
+    try:
+        activity_collection.insert_one({
+            "username": username,
+            "activity_type": activity_type,
+            "timestamp": datetime.datetime.now()
+        })
+    except Exception as e:
+        app.logger.error(f"Failed to record activity: {str(e)}")
+        # Don't throw error to avoid disrupting main functionality
+
+# Helper function to calculate user streak
+def calculate_streak(username):
+    """
+    Calculate the current streak for a user
+    Returns the number of consecutive days with activity
+    """
+    try:
+        today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Get all user activities
+        all_activities = list(activity_collection.find({
+            "username": username
+        }).sort("timestamp", -1))
+        
+        if not all_activities:
+            return 0
+            
+        # Group activities by day
+        activity_days = {}
+        for activity in all_activities:
+            day = activity['timestamp'].replace(hour=0, minute=0, second=0, microsecond=0)
+            activity_days[day] = True
+            
+        # Sort days in descending order
+        days = sorted(activity_days.keys(), reverse=True)
+        
+        # Check if user has activity today
+        if not days or (today - days[0]).days > 0:
+            # If no activity today, check if there was activity yesterday
+            yesterday = today - datetime.timedelta(days=1)
+            if not days or (yesterday - days[0]).days > 0:
+                # No activity yesterday either, streak is 0
+                return 0
+        
+        # Count consecutive days
+        streak = 1  # Start with 1 for the most recent day with activity
+        for i in range(len(days) - 1):
+            if (days[i] - days[i+1]).days == 1:
+                # Days are consecutive
+                streak += 1
+            else:
+                # Found a gap
+                break
+                
+        return streak
+        
+    except Exception as e:
+        app.logger.error(f"Failed to calculate streak: {str(e)}")
+        return 0
 
 # Add endpoint to retrieve calming music
 @app.route('/music', methods=['GET'])
@@ -138,7 +207,11 @@ def get_user():
         ph = PasswordHasher()
         if hashed_password and ph.verify(hashed_password, password.encode('utf-8')):
             # if matches, return cookie with set-cookie header
-            session['user']=username
+            session['user'] = username
+            
+            # Record login activity
+            record_activity(username, 'login')
+            
             response = make_response(jsonify({"message": "Login successful"}), 200)
             response.set_cookie('valid', 'true', httponly=False)
             return response
@@ -149,6 +222,10 @@ def get_user():
     
 @app.route('/logout')
 def logout():
+    if 'user' in session:
+        # Record logout activity
+        record_activity(session['user'], 'logout')
+    
     response = make_response(jsonify({"message": "Logout successful"}), 200)
     session.clear()
     response.delete_cookie('valid')
@@ -163,6 +240,10 @@ def create_journal():
         journal_data = request.get_json()
         journal_data["username"] = session['user']
         journals_collection.insert_one(journal_data)
+        
+        # Record journal activity
+        record_activity(session['user'], 'journal')
+        
         return jsonify({"message": "Journal entry created successfully"}), 201
     except Exception as e:
         return jsonify({"error": f"Failed to create journal entry: {str(e)}"}), 500
@@ -206,7 +287,10 @@ def update_journal():
         journal_data.pop("_id")
         print(journal_data)
         journals_collection.update_one({"_id": journalId}, {"$set": journal_data})
-
+        
+        # Record journal update activity
+        record_activity(session['user'], 'journal_update')
+        
         return jsonify({"message": "update successful"}), 200
     except Exception as e:
         return jsonify({"error": f"Failed to update journal entries: {str(e)}"}), 500
@@ -227,12 +311,354 @@ def delete_journal():
         result = journals_collection.delete_one({"_id": ObjectId(oid)})
 
         if result.deleted_count == 1:
+            # Record journal deletion activity
+            record_activity(session['user'], 'journal_delete')
+            
             return jsonify({"message": "Journal entry deleted successfully"}), 200
         else:
             return jsonify({"error": "Journal entry not found or you do not have permission to delete it"}), 404
     except Exception as e:
         return jsonify({"error": f"Failed to delete journal entry: {str(e)}"}), 500
 
+# =========== MOOD TRACKING API ENDPOINTS ===========
+
+@app.route('/moods', methods=['POST'])
+def log_mood():
+    """Log a new mood for the current user"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        mood_data = request.get_json()
+        if not mood_data or 'mood' not in mood_data:
+            return jsonify({"error": "Invalid mood data"}), 400
+        
+        # Add username and timestamp if not provided
+        mood_data['username'] = session['user']
+        if 'timestamp' not in mood_data:
+            mood_data['timestamp'] = datetime.datetime.now().isoformat()
+        else:
+            # Ensure timestamp is a datetime object if it's a string
+            if isinstance(mood_data['timestamp'], str):
+                mood_data['timestamp'] = datetime.datetime.fromisoformat(mood_data['timestamp'])
+        
+        # Insert the mood entry
+        result = moods_collection.insert_one(mood_data)
+        
+        # Record mood log activity
+        record_activity(session['user'], 'mood_log')
+        
+        return jsonify({
+            "message": "Mood logged successfully",
+            "mood_id": str(result.inserted_id)
+        }), 201
+    
+    except Exception as e:
+        return jsonify({"error": f"Failed to log mood: {str(e)}"}), 500
+
+@app.route('/moods', methods=['GET'])
+def get_mood_history():
+    """Get mood history for the current user"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        
+        # Optional date range filtering
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        
+        query = {"username": username}
+        
+        if start_date:
+            query["timestamp"] = {"$gte": datetime.datetime.fromisoformat(start_date)}
+        
+        if end_date:
+            if "timestamp" not in query:
+                query["timestamp"] = {}
+            query["timestamp"]["$lte"] = datetime.datetime.fromisoformat(end_date)
+        
+        # Get mood history, sorted by timestamp descending (newest first)
+        mood_history = list(moods_collection.find(query).sort("timestamp", -1))
+        
+        # Convert to JSON
+        mood_history = json.loads(json_util.dumps(mood_history))
+        
+        return jsonify(mood_history), 200
+    
+    except Exception as e:
+        return jsonify({"error": f"Failed to retrieve mood history: {str(e)}"}), 500
+
+@app.route('/moods/trend', methods=['GET'])
+def get_mood_trend():
+    """Calculate and return the user's mood trend"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        
+        # Get the past 7 days of moods
+        seven_days_ago = datetime.datetime.now() - datetime.timedelta(days=7)
+        
+        recent_moods = list(moods_collection.find({
+            "username": username,
+            "timestamp": {"$gte": seven_days_ago}
+        }).sort("timestamp", -1))
+        
+        # Default response if no moods are found
+        if not recent_moods:
+            return jsonify({
+                "trend": "neutral",
+                "description": "No recent mood data"
+            }), 200
+        
+        # Extract the mood values
+        mood_values = [mood.get('mood') for mood in recent_moods]
+        
+        # Calculate the most common mood
+        most_common_mood = Counter(mood_values).most_common(1)[0][0]
+        
+        # Check if there's a trend (improving or declining)
+        if len(mood_values) >= 3:
+            # Simple algorithm to determine trend
+            # Define mood ranks from negative to positive
+            mood_ranks = {
+                'sad': -2,
+                'tired': -1,
+                'neutral': 0,
+                'energetic': 1,
+                'happy': 2
+            }
+            
+            # Get the ranks of the last 3 moods
+            recent_ranks = [mood_ranks.get(mood, 3) for mood in mood_values[:3]]
+            
+            # Check if consistently improving
+            if recent_ranks[0] > recent_ranks[1] > recent_ranks[2]:
+                trend = "improving"
+                description = "Your mood is improving"
+            # Check if consistently declining
+            elif recent_ranks[0] < recent_ranks[1] < recent_ranks[2]:
+                trend = "sad"  # Using "sad" as the trend identifier for declining
+                description = "Your mood is declining"
+            # Check if fluctuating significantly
+            elif max(recent_ranks) - min(recent_ranks) >= 3:
+                trend = "fluctuating"
+                description = "Your mood has been fluctuating"
+            else:
+                # Default to the most common mood
+                trend = most_common_mood
+                description = f"Your mood has been mostly {most_common_mood}"
+        else:
+            trend = most_common_mood
+            description = f"Your recent mood: {most_common_mood}"
+        
+        return jsonify({
+            "trend": trend,
+            "description": description,
+            "mostCommonMood": most_common_mood,
+            "recentMoods": mood_values[:5]  # Include the 5 most recent moods
+        }), 200
+    
+    except Exception as e:
+        return jsonify({"error": f"Failed to calculate mood trend: {str(e)}"}), 500
+
+@app.route('/moods/last', methods=['GET'])
+def get_last_mood():
+    """Get the user's most recent mood"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        
+        # Get the most recent mood
+        last_mood = moods_collection.find_one(
+            {"username": username},
+            sort=[("timestamp", -1)]
+        )
+        
+        if not last_mood:
+            return jsonify({
+                "mood": "neutral",
+                "timestamp": None
+            }), 200
+        
+        # Convert to JSON
+        last_mood = json.loads(json_util.dumps(last_mood))
+        
+        return jsonify(last_mood), 200
+    
+    except Exception as e:
+        return jsonify({"error": f"Failed to retrieve last mood: {str(e)}"}), 500
+
+# =========== USER ACTIVITY & STREAK API ENDPOINTS ===========
+
+@app.route('/user/streak', methods=['GET'])
+def get_user_streak():
+    """Get the current user's streak (consecutive days of activity)"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        streak = calculate_streak(username)
+        
+        return jsonify({
+            "streak": streak,
+            "unit": "days"
+        }), 200
+    
+    except Exception as e:
+        return jsonify({"error": f"Failed to calculate streak: {str(e)}"}), 500
+
+@app.route('/user/last-activity', methods=['GET'])
+def get_last_activity():
+    """Get the user's last activity time and type"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        
+        # Get the most recent activity
+        last_activity = activity_collection.find_one(
+            {"username": username},
+            sort=[("timestamp", -1)]
+        )
+        
+        if not last_activity:
+            return jsonify({
+                "lastActivity": None,
+                "relativeTime": "No activity yet",
+                "activityType": None
+            }), 200
+        
+        # Format the timestamp for relative time display
+        now = datetime.datetime.now()
+        activity_time = last_activity['timestamp']
+        time_diff = now - activity_time
+        
+        # Create a human-readable relative time
+        if time_diff.days > 0:
+            relative_time = f"{time_diff.days} days ago"
+        elif time_diff.seconds >= 3600:
+            hours = time_diff.seconds // 3600
+            relative_time = f"{hours} hour{'s' if hours > 1 else ''} ago"
+        elif time_diff.seconds >= 60:
+            minutes = time_diff.seconds // 60
+            relative_time = f"{minutes} minute{'s' if minutes > 1 else ''} ago"
+        else:
+            relative_time = "just now"
+        
+        # Convert to JSON
+        activity_data = {
+            "lastActivity": json.loads(json_util.dumps(activity_time)),
+            "relativeTime": relative_time,
+            "activityType": last_activity['activity_type']
+        }
+        
+        return jsonify(activity_data), 200
+    
+    except Exception as e:
+        return jsonify({"error": f"Failed to retrieve last activity: {str(e)}"}), 500
+
+@app.route('/user/dashboard-stats', methods=['GET'])
+def get_dashboard_stats():
+    """Get combined dashboard statistics for the current user"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        
+        # Get journal count
+        journal_count = journals_collection.count_documents({'username': username})
+        
+        # Get streak
+        streak = calculate_streak(username)
+        
+        # Get last activity
+        last_activity = activity_collection.find_one(
+            {"username": username},
+            sort=[("timestamp", -1)]
+        )
+        
+        # Format relative time for last activity
+        relative_time = "No activity yet"
+        if last_activity:
+            now = datetime.datetime.now()
+            activity_time = last_activity['timestamp']
+            time_diff = now - activity_time
+            
+            if time_diff.days > 0:
+                relative_time = f"{time_diff.days} days ago"
+            elif time_diff.seconds >= 3600:
+                hours = time_diff.seconds // 3600
+                relative_time = f"{hours} hour{'s' if hours > 1 else ''} ago"
+            elif time_diff.seconds >= 60:
+                minutes = time_diff.seconds // 60
+                relative_time = f"{minutes} minute{'s' if minutes > 1 else ''} ago"
+            else:
+                relative_time = "just now"
+        
+        # Get mood trend
+        seven_days_ago = datetime.datetime.now() - datetime.timedelta(days=7)
+        recent_moods = list(moods_collection.find({
+            "username": username,
+            "timestamp": {"$gte": seven_days_ago}
+        }).sort("timestamp", -1))
+        
+        mood_trend = {
+            "trend": "neutral",
+            "description": "No recent mood data"
+        }
+        
+        if recent_moods:
+            mood_values = [mood.get('mood') for mood in recent_moods]
+            most_common_mood = Counter(mood_values).most_common(1)[0][0]
+            
+            if len(mood_values) >= 3:
+                mood_ranks = {
+                    'sad': -2,
+                    'tired': -1,
+                    'neutral': 0,
+                    'energetic': 1,
+                    'happy': 2
+                }
+                
+                recent_ranks = [mood_ranks.get(mood, 3) for mood in mood_values[:3]]
+                
+                if recent_ranks[0] > recent_ranks[1] > recent_ranks[2]:
+                    mood_trend["trend"] = "improving"
+                    mood_trend["description"] = "Your mood is improving"
+                elif recent_ranks[0] < recent_ranks[1] < recent_ranks[2]:
+                    mood_trend["trend"] = "sad"
+                    mood_trend["description"] = "Your mood is declining"
+                elif max(recent_ranks) - min(recent_ranks) >= 3:
+                    mood_trend["trend"] = "fluctuating"
+                    mood_trend["description"] = "Your mood has been fluctuating"
+                else:
+                    mood_trend["trend"] = most_common_mood
+                    mood_trend["description"] = f"Your mood has been mostly {most_common_mood}"
+            else:
+                mood_trend["trend"] = most_common_mood
+                mood_trend["description"] = f"Your recent mood: {most_common_mood}"
+        
+        # Combine all stats
+        dashboard_stats = {
+            "journalCount": journal_count,
+            "streak": streak,
+            "lastActivity": relative_time,
+            "moodTrend": mood_trend
+        }
+        
+        return jsonify(dashboard_stats), 200
+    
+    except Exception as e:
+        return jsonify({"error": f"Failed to retrieve dashboard stats: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)

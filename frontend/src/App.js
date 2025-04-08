@@ -12,6 +12,7 @@ import Meditation from './features/Dashboard/Meditation/Meditation.js';
 import { AuthProvider } from './features/AuthContext/AuthContext.js';
 import MoodCheck from './features/Dashboard/MoodCheck/MoodCheck.js';
 import LaughOutLoud from './features/Dashboard/LaughOutLoud/LaughOutLoud.js';
+//import MoodBooster from './features/MoodEnhancer/MoodBooster.js';
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
               
               <Route path='/login' element={<Login />} />
               <Route path='/register' element={<Register />} />
+              
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/journal" element={<Journal />} />
 
