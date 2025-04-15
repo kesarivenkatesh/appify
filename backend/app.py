@@ -25,12 +25,41 @@ users_collection = db["users"]
 journals_collection = db["journals"]
 moods_collection = db["moods"]  # Collection for mood tracking
 music_collection = db["music"]
+videos_collection = db["videos"]
 activity_collection = db["user_activity"]  # New collection for tracking user activity
 
 # Create unique index for username
 users_collection.create_index("username", unique=True)
 
+# Define the mood intensity mapping
+MOOD_INTENSITY = {
+    'excited': 5,
+    'happy': 4,
+    'content': 3,
+    'neutral': 2,
+    'tired': 1,
+    'anxious': 0,
+    'sad': -1,
+    'angry': -2
+}
+
+# Video recommendation categories based on mood
+MOOD_VIDEO_MAPPING = {
+    'excited': ['motivation', 'comedy', 'dance', 'energy'],
+    'happy': ['inspiration', 'motivation', 'celebration', 'comedy'],
+    'content': ['mindfulness', 'wellbeing', 'inspiration', 'nature'],
+    'neutral': ['educational', 'informative', 'wellbeing', 'inspiration'],
+    'tired': ['relaxation', 'sleep', 'meditation', 'calming'],
+    'anxious': ['mindfulness', 'calming', 'breathing', 'relaxation'],
+    'sad': ['uplift', 'comfort', 'mindfulness', 'nature'],
+    'angry': ['calming', 'emotional-control', 'emotional-release', 'mindfulness']
+}
+
+# Default video categories if mood not recognized
+DEFAULT_CATEGORIES = ['wellbeing', 'mindfulness', 'self-care', 'positive']
+
 def get_auth_user():
+    """Get the currently authenticated user from session"""
     return session.get('user')
 
 # Helper function to record user activity
@@ -137,7 +166,7 @@ def get_username_password_from_request():
     except (ValueError, base64.binascii.Error):
         return None, "Invalid authorization header"
 
-@app.post("/register")
+@app.route("/register", methods=['POST'])
 def insert_user():
     try:
         # Get and validate JSON data
@@ -186,7 +215,7 @@ def insert_user():
         app.logger.error(f"Registration error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
     
-@app.get("/login")
+@app.route("/login", methods=['GET'])
 def get_user():
     if 'user' in session:
         return jsonify({"message": "Already logged in"}), 406
@@ -205,7 +234,7 @@ def get_user():
             return jsonify({"error": "Invalid username"}), 401
         
         ph = PasswordHasher()
-        if hashed_password and ph.verify(hashed_password, password.encode('utf-8')):
+        if hashed_password and ph.verify(hashed_password, password):
             # if matches, return cookie with set-cookie header
             session['user'] = username
             
@@ -216,11 +245,11 @@ def get_user():
             response.set_cookie('valid', 'true', httponly=False)
             return response
         else:
-            return jsonify({"error": error_message}), 401
+            return jsonify({"error": "Invalid credentials"}), 401
     else:
         return jsonify({"error": error_message}), 401
     
-@app.route('/logout')
+@app.route('/logout', methods=['GET'])
 def logout():
     if 'user' in session:
         # Record logout activity
@@ -232,7 +261,7 @@ def logout():
     return response
 
 # Journal endpoints
-@app.post('/journal')
+@app.route('/journal', methods=['POST'])
 def create_journal():
     if 'user' not in session:
         return jsonify({"message": "Not logged in"}), 403
@@ -249,18 +278,16 @@ def create_journal():
         return jsonify({"error": f"Failed to create journal entry: {str(e)}"}), 500
     
 
-@app.get('/journal')
+@app.route('/journal', methods=['GET'])
 def read_journals():
     if 'user' not in session:
         return jsonify({"message": "Not logged in"}), 403
     try:
         username = session['user']
         user_journals = list(journals_collection.find({"username": username}))
-        # print(user_journals)
         user_journals = json.loads(json_util.dumps(user_journals))
-        # print(user_journals)
 
-        return user_journals, 200
+        return jsonify(user_journals), 200
     except Exception as e:
         return jsonify({"error": f"Failed to read journal entries: {str(e)}"}), 500
 
@@ -275,17 +302,15 @@ def journal_count():
     except Exception as e:
         return jsonify({"error": f"Failed to get the count of journal entries: {str(e)}"}), 500
 
-@app.put('/journal')
+@app.route('/journal', methods=['PUT'])
 def update_journal():
     if 'user' not in session:
         return jsonify({"message": "Not logged in"}), 403
     try:
         journal_data = request.get_json()
-        print(journal_data)
         oid = journal_data["_id"]["$oid"]
         journalId = ObjectId(oid)
         journal_data.pop("_id")
-        print(journal_data)
         journals_collection.update_one({"_id": journalId}, {"$set": journal_data})
         
         # Record journal update activity
@@ -295,14 +320,13 @@ def update_journal():
     except Exception as e:
         return jsonify({"error": f"Failed to update journal entries: {str(e)}"}), 500
 
-@app.delete('/journal')
+@app.route('/journal', methods=['DELETE'])
 def delete_journal():
     if 'user' not in session:
         return jsonify({"message": "Not logged in"}), 403
 
     try:
         data = request.get_json()
-        print(data)
         oid = data.get('_id').get('$oid')
 
         if not oid:
@@ -324,7 +348,7 @@ def delete_journal():
 
 @app.route('/moods', methods=['POST'])
 def log_mood():
-    """Log a new mood for the current user"""
+    """Log a new mood for the current user with intensity value"""
     if 'user' not in session:
         return jsonify({"error": "Not logged in"}), 403
     
@@ -336,11 +360,15 @@ def log_mood():
         # Add username and timestamp if not provided
         mood_data['username'] = session['user']
         if 'timestamp' not in mood_data:
-            mood_data['timestamp'] = datetime.datetime.now().isoformat()
+            mood_data['timestamp'] = datetime.datetime.now()
         else:
             # Ensure timestamp is a datetime object if it's a string
             if isinstance(mood_data['timestamp'], str):
-                mood_data['timestamp'] = datetime.datetime.fromisoformat(mood_data['timestamp'])
+                mood_data['timestamp'] = datetime.datetime.fromisoformat(mood_data['timestamp'].replace('Z', '+00:00'))
+        
+        # Add intensity value based on mood if not provided
+        if 'intensity' not in mood_data:
+            mood_data['intensity'] = MOOD_INTENSITY.get(mood_data['mood'], 0)
         
         # Insert the mood entry
         result = moods_collection.insert_one(mood_data)
@@ -354,11 +382,12 @@ def log_mood():
         }), 201
     
     except Exception as e:
+        app.logger.error(f"Failed to log mood: {str(e)}")
         return jsonify({"error": f"Failed to log mood: {str(e)}"}), 500
 
 @app.route('/moods', methods=['GET'])
 def get_mood_history():
-    """Get mood history for the current user"""
+    """Get mood history for the current user with optional filtering"""
     if 'user' not in session:
         return jsonify({"error": "Not logged in"}), 403
     
@@ -368,11 +397,16 @@ def get_mood_history():
         # Optional date range filtering
         start_date = request.args.get('start_date')
         end_date = request.args.get('end_date')
+        # Get days parameter (default to 7 if start_date not provided)
+        days = int(request.args.get('days', 7))
         
         query = {"username": username}
         
         if start_date:
             query["timestamp"] = {"$gte": datetime.datetime.fromisoformat(start_date)}
+        elif days:
+            start_date = datetime.datetime.now() - datetime.timedelta(days=days)
+            query["timestamp"] = {"$gte": start_date}
         
         if end_date:
             if "timestamp" not in query:
@@ -385,9 +419,13 @@ def get_mood_history():
         # Convert to JSON
         mood_history = json.loads(json_util.dumps(mood_history))
         
-        return jsonify(mood_history), 200
+        return jsonify({
+            "moods": mood_history,
+            "count": len(mood_history)
+        }), 200
     
     except Exception as e:
+        app.logger.error(f"Failed to retrieve mood history: {str(e)}")
         return jsonify({"error": f"Failed to retrieve mood history: {str(e)}"}), 500
 
 @app.route('/moods/trend', methods=['GET'])
@@ -433,7 +471,7 @@ def get_mood_trend():
             }
             
             # Get the ranks of the last 3 moods
-            recent_ranks = [mood_ranks.get(mood, 3) for mood in mood_values[:3]]
+            recent_ranks = [mood_ranks.get(mood, 0) for mood in mood_values[:3]]
             
             # Check if consistently improving
             if recent_ranks[0] > recent_ranks[1] > recent_ranks[2]:
@@ -463,6 +501,7 @@ def get_mood_trend():
         }), 200
     
     except Exception as e:
+        app.logger.error(f"Failed to calculate mood trend: {str(e)}")
         return jsonify({"error": f"Failed to calculate mood trend: {str(e)}"}), 500
 
 @app.route('/moods/last', methods=['GET'])
@@ -492,6 +531,7 @@ def get_last_mood():
         return jsonify(last_mood), 200
     
     except Exception as e:
+        app.logger.error(f"Failed to retrieve last mood: {str(e)}")
         return jsonify({"error": f"Failed to retrieve last mood: {str(e)}"}), 500
 
 # =========== USER ACTIVITY & STREAK API ENDPOINTS ===========
@@ -512,6 +552,7 @@ def get_user_streak():
         }), 200
     
     except Exception as e:
+        app.logger.error(f"Failed to calculate streak: {str(e)}")
         return jsonify({"error": f"Failed to calculate streak: {str(e)}"}), 500
 
 @app.route('/user/last-activity', methods=['GET'])
@@ -563,6 +604,7 @@ def get_last_activity():
         return jsonify(activity_data), 200
     
     except Exception as e:
+        app.logger.error(f"Failed to retrieve last activity: {str(e)}")
         return jsonify({"error": f"Failed to retrieve last activity: {str(e)}"}), 500
 
 @app.route('/user/dashboard-stats', methods=['GET'])
@@ -629,7 +671,7 @@ def get_dashboard_stats():
                     'happy': 2
                 }
                 
-                recent_ranks = [mood_ranks.get(mood, 3) for mood in mood_values[:3]]
+                recent_ranks = [mood_ranks.get(mood, 0) for mood in mood_values[:3]]
                 
                 if recent_ranks[0] > recent_ranks[1] > recent_ranks[2]:
                     mood_trend["trend"] = "improving"
@@ -658,7 +700,545 @@ def get_dashboard_stats():
         return jsonify(dashboard_stats), 200
     
     except Exception as e:
+        app.logger.error(f"Failed to retrieve dashboard stats: {str(e)}")
         return jsonify({"error": f"Failed to retrieve dashboard stats: {str(e)}"}), 500
+
+# =========== VIDEO RECOMMENDATIONS API ENDPOINTS ===========
+
+@app.route('/videos/recommendations', methods=['GET'])
+def get_video_recommendations():
+    """Get video recommendations based on user's mood"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        
+        # Get mood parameter from query or use the user's latest mood
+        mood = request.args.get('mood')
+        if not mood:
+            # Get the user's latest mood
+            latest_mood = moods_collection.find_one(
+                {"username": username},
+                sort=[("timestamp", -1)]
+            )
+            mood = latest_mood.get('mood', 'neutral') if latest_mood else 'neutral'
+        
+        # Get recommended categories based on mood
+        categories = MOOD_VIDEO_MAPPING.get(mood, DEFAULT_CATEGORIES)
+        
+        # Query videos matching the categories or mood tags
+        videos = list(videos_collection.find({
+            '$or': [
+                {'categories': {'$in': categories}},
+                {'mood_tags': {'$in': [mood]}}
+            ],
+            'active': True  # Only include active videos
+        }).sort('rating', -1).limit(6))  # Get top 6 by rating
+        
+        # If no videos found for specific categories, get default recommendations
+        if len(videos) == 0:
+            videos = list(videos_collection.find({
+                'categories': {'$in': DEFAULT_CATEGORIES},
+                'active': True
+            }).limit(6))
+        
+        # Format the videos for response
+        formatted_videos = []
+        for video in videos:
+            formatted_videos.append({
+                'id': str(video['_id']),
+                'title': video['title'],
+                'description': video['description'],
+                'youtube_id': video['youtube_id'],  # YouTube video ID for embedding
+                'thumbnail': video['thumbnail'],
+                'duration': video['duration'],
+                'categories': video['categories']
+            })
+        
+        # Log this recommendation for analytics
+        record_activity(username, 'video_recommendation')
+        
+        return jsonify({
+            'videos': formatted_videos,
+            'mood': mood
+        }), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error getting video recommendations: {str(e)}")
+        return jsonify({'error': 'Could not retrieve video recommendations'}), 500
+
+@app.route('/videos/interaction', methods=['POST'])
+
+def log_video_interaction():
+    """Log user interaction with videos to improve recommendations"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        data = request.get_json()
+        
+        if not data or 'videoId' not in data or 'interactionType' not in data:
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        # Add to a new video_interactions collection
+        interaction = {
+            'username': username,
+            'video_id': ObjectId(data['videoId']),
+            'interaction_type': data['interactionType'],
+            'timestamp': datetime.datetime.now(),
+            'watched_duration': data.get('watchedDuration', 0),
+            'device': data.get('device', request.user_agent.string)
+        }
+        
+        # Create the collection if it doesn't exist
+        if 'video_interactions' not in db.list_collection_names():
+            db.create_collection('video_interactions')
+            
+        db.video_interactions.insert_one(interaction)
+        
+        # Update video stats
+        if data['interactionType'] in ['view', 'complete', 'like']:
+            update_fields = {}
+            if data['interactionType'] == 'view':
+                update_fields['view_count'] = 1
+            elif data['interactionType'] == 'complete':
+                update_fields['completion_count'] = 1
+            elif data['interactionType'] == 'like':
+                update_fields['like_count'] = 1
+                
+            videos_collection.update_one(
+                {'_id': ObjectId(data['videoId'])},
+                {'$inc': update_fields}
+            )
+        
+        # Record video interaction activity
+        activity_type = f"video_{data['interactionType']}"
+        record_activity(username, activity_type)
+        
+        return jsonify({'success': True})
+    
+    except Exception as e:
+        app.logger.error(f"Error logging video interaction: {str(e)}")
+        return jsonify({'error': 'Could not log video interaction'}), 500
+
+@app.route('/videos/popular', methods=['GET'])
+def get_popular_videos():
+    """Get popular videos across all categories"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        # Get limit parameter
+        limit = int(request.args.get('limit', 6))
+        
+        # Query most popular videos based on view count
+        videos = list(videos_collection.find({
+            'active': True
+        }).sort('view_count', -1).limit(limit))
+        
+        # Format the videos for response
+        formatted_videos = []
+        for video in videos:
+            formatted_videos.append({
+                'id': str(video['_id']),
+                'title': video['title'],
+                'description': video['description'],
+                'youtube_id': video['youtube_id'],
+                'thumbnail': video['thumbnail'],
+                'duration': video['duration'],
+                'view_count': video.get('view_count', 0),
+                'categories': video['categories']
+            })
+        
+        return jsonify({
+            'videos': formatted_videos
+        }), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error getting popular videos: {str(e)}")
+        return jsonify({'error': 'Could not retrieve popular videos'}), 500
+
+@app.route('/videos/by-mood/<mood>', methods=['GET'])
+def get_videos_by_mood(mood):
+    """Get videos specifically tagged for a particular mood"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        if not mood or mood not in MOOD_VIDEO_MAPPING:
+            return jsonify({'error': 'Invalid mood parameter'}), 400
+            
+        # Get limit parameter
+        limit = int(request.args.get('limit', 8))
+        
+        # Query videos directly tagged with this mood
+        videos = list(videos_collection.find({
+            '$or': [
+                {'mood_tags': mood},
+                {'categories': {'$in': MOOD_VIDEO_MAPPING.get(mood, [])}}
+            ],
+            'active': True
+        }).sort('rating', -1).limit(limit))
+        
+        # Format the videos for response
+        formatted_videos = []
+        for video in videos:
+            formatted_videos.append({
+                'id': str(video['_id']),
+                'title': video['title'],
+                'description': video['description'],
+                'youtube_id': video['youtube_id'],
+                'thumbnail': video['thumbnail'],
+                'duration': video['duration'],
+                'categories': video['categories']
+            })
+        
+        return jsonify({
+            'videos': formatted_videos,
+            'mood': mood
+        }), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error getting videos by mood: {str(e)}")
+        return jsonify({'error': 'Could not retrieve videos for this mood'}), 500
+    
+@app.route('/api/user/profile', methods=['GET'])
+def get_user_profile():
+    """Get the current user's profile information"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        
+        # Get user from database (exclude password)
+        user = users_collection.find_one(
+            {"username": username},
+            {"password": 0}  # Exclude password field
+        )
+        
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Convert to JSON
+        user_data = json.loads(json_util.dumps(user))
+        
+        return jsonify(user_data), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error retrieving user profile: {str(e)}")
+        return jsonify({"error": f"Failed to retrieve user profile: {str(e)}"}), 500
+
+@app.route('/api/user/profile', methods=['PUT'])
+def update_user_profile():
+    """Update the current user's profile information"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        profile_data = request.get_json()
+        
+        if not profile_data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        # Fields that can be updated
+        allowed_fields = ['email']
+        
+        # Filter out fields that shouldn't be updated
+        update_data = {k: v for k, v in profile_data.items() if k in allowed_fields}
+        
+        if not update_data:
+            return jsonify({"error": "No valid fields to update"}), 400
+        
+        # Add updated_at timestamp
+        update_data['updated_at'] = datetime.datetime.now()
+        
+        # Update user
+        result = users_collection.update_one(
+            {"username": username},
+            {"$set": update_data}
+        )
+        
+        if result.modified_count == 0:
+            return jsonify({"warning": "No changes made"}), 200
+        
+        return jsonify({"message": "Profile updated successfully"}), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error updating user profile: {str(e)}")
+        return jsonify({"error": f"Failed to update profile: {str(e)}"}), 500
+
+@app.route('/api/user/change-password', methods=['PUT'])
+def change_password():
+    """Change the user's password"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        data = request.get_json()
+        
+        if not data or 'currentPassword' not in data or 'newPassword' not in data:
+            return jsonify({"error": "Missing required fields"}), 400
+        
+        # Get user and check current password
+        user = users_collection.find_one({"username": username})
+        
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Verify current password
+        ph = PasswordHasher()
+        try:
+            ph.verify(user['password'], data['currentPassword'])
+        except:
+            return jsonify({"error": "Current password is incorrect"}), 401
+        
+        # Hash new password
+        hashed_password = ph.hash(data['newPassword'])
+        
+        # Update password
+        result = users_collection.update_one(
+            {"username": username},
+            {
+                "$set": {
+                    "password": hashed_password,
+                    "password_updated_at": datetime.datetime.now()
+                }
+            }
+        )
+        
+        # Record password change activity
+        record_activity(username, 'password_change')
+        
+        return jsonify({"message": "Password changed successfully"}), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error changing password: {str(e)}")
+        return jsonify({"error": f"Failed to change password: {str(e)}"}), 500
+
+@app.route('/api/user/profile', methods=['DELETE'])
+def delete_user_account():
+    """Delete the user's account and all associated data"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        
+        # Delete user's data from collections
+        journals_collection.delete_many({"username": username})
+        moods_collection.delete_many({"username": username})
+        activity_collection.delete_many({"username": username})
+        
+        # If video_interactions collection exists, delete from it too
+        if 'video_interactions' in db.list_collection_names():
+            db.video_interactions.delete_many({"username": username})
+        
+        # Finally delete the user
+        users_collection.delete_one({"username": username})
+        
+        # Clear session
+        session.clear()
+        
+        return jsonify({"message": "Account deleted successfully"}), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error deleting user account: {str(e)}")
+        return jsonify({"error": f"Failed to delete account: {str(e)}"}), 500
+
+@app.route('/api/user/activity-history', methods=['GET'])
+def get_user_activity_history():
+    """Get the user's activity history"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        
+        # Get limit parameter (default 20)
+        limit = int(request.args.get('limit', 20))
+        
+        # Get activity history
+        activities = list(activity_collection.find(
+            {"username": username}
+        ).sort("timestamp", -1).limit(limit))
+        
+        # Convert to JSON
+        activities = json.loads(json_util.dumps(activities))
+        
+        return jsonify(activities), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error retrieving activity history: {str(e)}")
+        return jsonify({"error": f"Failed to retrieve activity history: {str(e)}"}), 500
+
+@app.route('/api/user/watched-videos', methods=['GET'])
+def get_watched_videos():
+    """Get the user's watched videos"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        
+        # Get limit parameter (default 10)
+        limit = int(request.args.get('limit', 10))
+        
+        # Check if video_interactions collection exists
+        if 'video_interactions' not in db.list_collection_names():
+            return jsonify([]), 200
+        
+        # Get unique video IDs watched by the user
+        pipeline = [
+            {"$match": {"username": username, "interaction_type": "view"}},
+            {"$sort": {"timestamp": -1}},
+            {"$group": {
+                "_id": "$video_id",
+                "watchedAt": {"$first": "$timestamp"},
+                "videoId": {"$first": "$video_id"}
+            }},
+            {"$limit": limit}
+        ]
+        
+        watched_video_ids = list(db.video_interactions.aggregate(pipeline))
+        
+        # Get video details for these IDs
+        watched_videos = []
+        
+        for item in watched_video_ids:
+            video = videos_collection.find_one({"_id": item["videoId"]})
+            
+            if video:
+                watched_videos.append({
+                    "id": str(video["_id"]),
+                    "title": video["title"],
+                    "description": video["description"],
+                    "thumbnail": video.get("thumbnail", ""),
+                    "youtube_id": video.get("youtube_id", ""),
+                    "watchedAt": item["watchedAt"]
+                })
+        
+        # Convert to JSON
+        watched_videos_json = json.loads(json_util.dumps(watched_videos))
+        
+        return jsonify(watched_videos_json), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error retrieving watched videos: {str(e)}")
+        return jsonify({"error": f"Failed to retrieve watched videos: {str(e)}"}), 500
+
+@app.route('/api/user/video-analytics', methods=['GET'])
+def get_video_analytics():
+    """Get analytics about user's video watching habits"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        
+        # Check if video_interactions collection exists
+        if 'video_interactions' not in db.list_collection_names():
+            return jsonify({
+                "totalWatched": 0,
+                "completionRate": 0,
+                "watchTimeByDay": [],
+                "mostWatchedCategories": []
+            }), 200
+        
+        # Get total videos watched
+        total_watched = db.video_interactions.count_documents({
+            "username": username, 
+            "interaction_type": "view"
+        })
+        
+        # Get completed videos count
+        completed = db.video_interactions.count_documents({
+            "username": username, 
+            "interaction_type": "complete"
+        })
+        
+        # Calculate completion rate
+        completion_rate = (completed / total_watched * 100) if total_watched > 0 else 0
+        
+        # Get watch time by day (last 7 days)
+        seven_days_ago = datetime.datetime.now() - datetime.timedelta(days=7)
+        
+        pipeline_by_day = [
+            {
+                "$match": {
+                    "username": username,
+                    "timestamp": {"$gte": seven_days_ago}
+                }
+            },
+            {
+                "$group": {
+                    "_id": {
+                        "year": {"$year": "$timestamp"},
+                        "month": {"$month": "$timestamp"},
+                        "day": {"$dayOfMonth": "$timestamp"}
+                    },
+                    "count": {"$sum": 1},
+                    "watchTime": {"$sum": "$watched_duration"}
+                }
+            },
+            {"$sort": {"_id.year": 1, "_id.month": 1, "_id.day": 1}}
+        ]
+        
+        watch_time_by_day = list(db.video_interactions.aggregate(pipeline_by_day))
+        
+        # Format for response
+        formatted_watch_time = []
+        for day in watch_time_by_day:
+            date_str = f"{day['_id']['year']}-{day['_id']['month']}-{day['_id']['day']}"
+            formatted_watch_time.append({
+                "date": date_str,
+                "count": day["count"],
+                "watchTime": day["watchTime"]
+            })
+        
+        # Get most watched categories
+        pipeline_categories = [
+            {"$match": {"username": username}},
+            {"$lookup": {
+                "from": "videos",
+                "localField": "video_id",
+                "foreignField": "_id",
+                "as": "video_info"
+            }},
+            {"$unwind": "$video_info"},
+            {"$unwind": "$video_info.categories"},
+            {"$group": {
+                "_id": "$video_info.categories",
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"count": -1}},
+            {"$limit": 5}
+        ]
+        
+        category_counts = list(db.video_interactions.aggregate(pipeline_categories))
+        
+        # Format for response
+        most_watched_categories = []
+        for category in category_counts:
+            most_watched_categories.append({
+                "category": category["_id"],
+                "count": category["count"]
+            })
+        
+        return jsonify({
+            "totalWatched": total_watched,
+            "completionRate": round(completion_rate, 1),
+            "watchTimeByDay": formatted_watch_time,
+            "mostWatchedCategories": most_watched_categories
+        }), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error retrieving video analytics: {str(e)}")
+        return jsonify({"error": f"Failed to retrieve video analytics: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)

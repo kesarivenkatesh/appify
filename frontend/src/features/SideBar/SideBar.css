@@ -1,0 +1,163 @@
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background-color: white;
+    color: #1a283e;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .sidebar-header {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .app-title {
+    margin: 0 0 0 10px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #8865ff;
+  }
+  
+  .avatar-icon {
+    width: 30px;
+    height: 30px;
+    color: #8865ff;
+  }
+  
+  .sidebar-nav {
+    padding: 20px 0;
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .sidebar-nav-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .sidebar-nav-item.active {
+    background-color: rgba(0, 0, 0, 0.05);
+    font-weight: 600;
+    color: #8865ff;
+  }
+  
+  .sidebar-icon {
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+    color: white;
+  }
+  
+  /* Nav Icon Container with Gradient Background */
+  .nav-icon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 15px;
+    background: linear-gradient(to bottom right, #3a7bd5, #3a6073);
+  }
+  
+  /* Different gradient colors for each nav item */
+  .sidebar-nav-item:nth-child(1) .nav-icon-container {
+    background: linear-gradient(to bottom right, #43cea2, #185a9d); /* Home */
+  }
+  
+  .sidebar-nav-item:nth-child(2) .nav-icon-container {
+    background: linear-gradient(to bottom right, #ff5f6d, #ffc371); /* Journal */
+  }
+  
+  .sidebar-nav-item:nth-child(3) .nav-icon-container {
+    background: linear-gradient(to bottom right, #4facfe, #00f2fe); /* Meditation */
+  }
+  
+  .sidebar-nav-item:nth-child(4) .nav-icon-container {
+    background: linear-gradient(to bottom right, #a044ff, #6a3093); /* Calming Music */
+  }
+  
+  .sidebar-nav-item:nth-child(5) .nav-icon-container {
+    background: linear-gradient(to bottom right, #fa709a, #fee140); /* Exercise */
+  }
+  
+  .sidebar-nav-item:nth-child(6) .nav-icon-container {
+    background: linear-gradient(to bottom right, #ff9a44, #fc6076); /* Motivation */
+  }
+  
+  .sidebar-nav-item:nth-child(7) .nav-icon-container {
+    background: linear-gradient(to bottom right, #ffd89b, #ff9a9e); /* Laugh Out Loud */
+  }
+  
+  .sidebar-nav-item:nth-child(8) .nav-icon-container {
+    background: linear-gradient(to bottom right, #614385, #516395); /* Mood Analytics */
+  }
+  
+  .sidebar-nav-item:nth-child(9) .nav-icon-container {
+    background: linear-gradient(to bottom right, #56ab2f, #a8e063); /* Profile */
+  }
+  
+  /* Logout button styling */
+  .sidebar-logout-button {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: auto;
+    margin-bottom: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 20px;
+  }
+  
+  .sidebar-logout-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #ff6b6b;
+  }
+  
+  .logout-icon {
+    background: linear-gradient(to bottom right, #ff6b6b, #ff3838);
+  }
+  
+  /* Responsive Styles - only hide sidebar on very small screens */
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+    }
+    
+    .sidebar.sidebar-open {
+      transform: translateX(0);
+    }
+  }

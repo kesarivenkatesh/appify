@@ -12,15 +12,27 @@ const funnyVideos = {
   animation: [
     { id: "_gJ2huEmO8", title: "Funny Animation Compilation", description: "Hilarious animated clips to brighten your day.", duration: "1 mins" },
     { id: "eQqdkEU_bng", title: "Cartoon Laughs", description: "Side-splitting cartoons for all ages.", duration: "1 mins" },
-    { id: "jNb-wvzw1bk", title:"Cartoon Funny Compilation",description:"Why Mum!",duration:"1 min"}
+    { id: "jNb-wvzw1bk", title:"Cartoon Funny Compilation",description:"Why Mum!",duration:"1 min"},
+    { id: "qe3lzbs47UY", title: "Funny Animation Compilation", description: "Hilarious animated clips to brighten your day.", duration: "1 mins" },
+    { id: "V1RsvhU7MiA", title: "Cartoon Laughs", description: "Side-splitting cartoons for all ages.", duration: "1 mins" },
+    { id: "5BjMwac6PZ0", title:"Cartoon Funny Compilation",description:"Why Mum!",duration:"1 min"}
+  
   ],
   animals: [
     { id: "Po098TRdOn4", title: "Funny Animal Videos", description: "Watch animals being unexpectedly funny.", duration: "1 mins" },
     { id: "psw2oBWCCbs", title: "Cute and Hilarious Pets", description: "Adorable and mischievous pet moments.", duration: "1 mins" },
+    { id: "B-iu0883-Iw", title: "Funny Animal Videos", description: "Watch animals being unexpectedly funny.", duration: "1 mins" },
+    { id: "NU44H49f7I8", title: "Cute and Hilarious Pets", description: "Adorable and mischievous pet moments.", duration: "1 mins" },
+    { id: "PAORQoMvSdY", title: "Funny Animal Videos", description: "Watch animals being unexpectedly funny.", duration: "1 mins" },
+    { id: "z6EchXyieos", title: "Cute and Hilarious Pets", description: "Adorable and mischievous pet moments.", duration: "1 mins" },
   ],
   emojis: [
     { id: "uT8wT34BrIs", title: "Emoji Faces in Real Life", description: "Laugh with emoji-inspired antics.", duration: "1 mins" },
     { id: "r0bqGUydUZc", title: "Funny Emoji Videos Compilation", description: "Emoji humor guaranteed to crack you up.", duration: "2 mins" },
+    { id: "bb2M-8Rrmjs", title: "Emoji Faces in Real Life", description: "Laugh with emoji-inspired antics.", duration: "1 mins" },
+    { id: "t4T6iQl_Gvc", title: "Funny Emoji Videos Compilation", description: "Emoji humor guaranteed to crack you up.", duration: "2 mins" },
+    { id: "505qgfV9KtY", title: "Emoji Faces in Real Life", description: "Laugh with emoji-inspired antics.", duration: "1 mins" },
+    { id: "GeB95EreenQ", title: "Funny Emoji Videos Compilation", description: "Emoji humor guaranteed to crack you up.", duration: "2 mins" },
   ],
 };
 

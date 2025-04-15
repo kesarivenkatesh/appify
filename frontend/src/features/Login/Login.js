@@ -64,7 +64,7 @@ function Login() {
 
             if (response.status === 200 && response.data.message === "Login successful") {
                 login();
-                navigate("/dashboard");
+                navigate("/moodcheck");
             }
         } catch (error) {
             console.error("Login failed:", error);
@@ -83,7 +83,7 @@ function Login() {
         new UserService().login(credentials.username, credentials.password)
             .then(response => {
                 if(response.status === 200 && response.data.message === "Login successful") {
-                    navigate("/dashboard");
+                    navigate("/moodcheck");
                 }
             })
             .catch(error => {

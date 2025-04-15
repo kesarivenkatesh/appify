@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { BookHeart, Plus, Send, Edit2, Trash2, X, Calendar, Clock, Tag, Smile, Meh, Frown } from 'lucide-react';
 import JournalService from '../../../services/JournalService';
+import { useEmojiAnimation } from '../../EmojiAnimationContext';
 
 
 const Journal = () => {
+
   const [entries, setEntries] = useState([]);
   const [isWriting, setIsWriting] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
@@ -17,10 +19,14 @@ const Journal = () => {
   const [error, setError] = useState('');
   const isAuthenticated = true;
   const journalService = new JournalService();
+  const { applyTheme } = useEmojiAnimation();
+
 
   useEffect(() => {
+    
     if (isAuthenticated) {
       fetchEntries();
+      applyTheme('calm');
     }
   }, [isAuthenticated]);
 

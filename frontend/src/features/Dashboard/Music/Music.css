@@ -1,61 +1,169 @@
-body {
-    font-family: 'Arial', sans-serif;  /* Adjust according to your fonts */
-    background-color: #f0f0f0;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+/* Music.css - Matching the style of Meditation.css */
+
+.music-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+.music-sticky-header {
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  padding: 20px 0;
+  z-index: 100;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.music-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.header-title {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.header-description {
+  font-size: 1.1rem;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.category-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.category-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 15px;
+  background: #f5f7fa;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-button svg {
+  margin-bottom: 5px;
+  font-size: 1.5rem;
+}
+
+.category-button span {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.category-button:hover {
+  background: #e9ecef;
+}
+
+.category-button.active {
+  background: #e6f7ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.category-content {
+  padding: 20px 0;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.category-header svg {
+  font-size: 2rem;
+  margin-right: 15px;
+}
+
+.category-title {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.category-description {
+  color: #666;
+  font-size: 1rem;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.video-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.video-card:hover {
+  transform: translateY(-5px);
+}
+
+.video-details {
+  padding: 15px;
+}
+
+.video-details h3 {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.video-details p {
+  color: #666;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.video-details span {
+  color: #999;
+  font-size: 0.8rem;
+  display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .category-navigation {
+    gap: 10px;
   }
   
-  .music-container {
-    text-align: center;
-    padding: 20px;
-    width: 80%;
-    max-width: 800px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  .video-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
   
-  .page-title {
-    font-size: 2.5em;
-    color: #4CAF50;
+  .header-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .video-grid {
+    grid-template-columns: 1fr;
   }
   
-  .song-list {
-    margin-top: 30px;
+  .category-button {
+    padding: 8px 12px;
   }
   
-  .song-item {
-    background-color: #fafafa;
-    padding: 10px;
-    margin: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+  .category-button svg {
+    font-size: 1.2rem;
   }
-  
-  .song-item:hover {
-    background-color: #f1f1f1;
-  }
-  
-  .player {
-    margin-top: 30px;
-  }
-  
-  .button {
-    padding: 10px 20px;
-    font-size: 1.2em;
-    background-color: #4CAF50;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-  }
-  
-  .button:hover {
-    background-color: #45a049;
-  }
-  
+}
