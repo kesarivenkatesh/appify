@@ -1,0 +1,725 @@
+.mood-circle-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+    /* Ensure perfect centering */
+    position: relative;
+  }
+  
+  .mood-circle-icon .mood-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+  }/* Journal.css */
+  .journal-container {
+    width: 95%;
+    padding: 20px;
+    margin-left: 40px;
+  }
+  
+  .journal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-top: 3.5rem;
+  }
+  
+  .journal-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #f48fb1; /* Pink color matching sidebar */
+    margin-bottom: 0.5rem;
+    margin-left: 0;
+  }
+  
+  .journal-subtitle {
+    color: #6b7280;
+  }
+  
+  .new-entry-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #f48fb1;
+    color: white;
+    border-radius: 0.5rem;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+  }
+  
+  .new-entry-button:hover {
+    background-color: #7c3aed;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .button-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  
+  .icon-sm {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  
+  .icon-xs {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+  
+  .error-message {
+    background-color: #fef2f2;
+    color: #ef4444;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .close-error {
+    background: none;
+    border: none;
+    color: #f87171;
+    cursor: pointer;
+  }
+  
+  .close-error:hover {
+    color: #ef4444;
+  }
+  
+  /* Journal Editor Styles */
+  .journal-editor {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    overflow: auto;
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+  
+  .editor-form {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group:first-child {
+    margin-top: 0;
+  }
+  
+  .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-input, .form-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+  
+  .form-input:focus, .form-textarea:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+  }
+  
+  .form-textarea {
+    resize: vertical;
+    min-height: 10rem;
+  }
+  
+  /* Mood Selector Styles */
+  .mood-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .mood-button {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    background-color: transparent;
+  }
+  
+  .mood-button:hover {
+    transform: translateY(-1px);
+  }
+  
+  .mood-button.selected {
+    transform: translateY(0);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .mood-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  /* Tags Styles */
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    background-color: #f5f3ff;
+    color: #8b5cf6;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+  }
+  
+  .tag-small {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background-color: #f5f3ff;
+    color: #8b5cf6;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+  }
+  
+  .remove-tag {
+    background: none;
+    border: none;
+    color: #8b5cf6;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+  }
+  
+  .remove-tag:hover {
+    color: #7c3aed;
+  }
+  
+  /* Form Actions */
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+  
+  .cancel-button {
+    padding: 0.5rem 1rem;
+    color: #6b7280;
+    background: none;
+    border: none;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .cancel-button:hover {
+    color: #1f2937;
+  }
+  
+  .save-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    background-color: #8b5cf6;
+    color: white;
+    border-radius: 0.5rem;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+  }
+  
+  .save-button:hover {
+    background-color: #7c3aed;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Empty Journal State */
+  .empty-journal {
+    text-align: center;
+    padding: 4rem;
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+  
+  .empty-icon {
+    width: 4rem;
+    height: 4rem;
+    color: #e9d5ff;
+    margin: 0 auto 1rem;
+  }
+  
+  .empty-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+  }
+  
+  .empty-subtitle {
+    color: #6b7280;
+    margin-bottom: 2rem;
+  }
+  
+  .start-writing-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #8b5cf6;
+    color: white;
+    border-radius: 0.5rem;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+  }
+  
+  .start-writing-button:hover {
+    background-color: #7c3aed;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Entries Grid */
+  .entries-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .entries-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  /* Entry Card */
+  .entry-card {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .entry-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px);
+  }
+  
+  .entry-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  
+  .entry-title-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .mood-emoji-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Ensure perfect centering */
+    position: relative;
+  }
+  
+  .mood-emoji-circle .mood-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+  }
+  
+  .entry-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+  }
+  
+  .entry-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .edit-button, .delete-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    background: none;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .edit-button:hover {
+    color: #8b5cf6;
+    background-color: #f5f3ff;
+  }
+  
+  .delete-button:hover {
+    color: #ef4444;
+    background-color: #fef2f2;
+  }
+  
+  .entry-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .entry-date {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+  }
+  
+  .date-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  .entry-body {
+    flex-grow: 1;
+  }
+  
+  .entry-text {
+    color: #4b5563;
+    white-space: pre-wrap;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+  }
+  
+  .read-more {
+    color: #8b5cf6;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.875rem;
+    cursor: pointer;
+    margin-top: 1rem;
+    align-self: flex-start;
+  }
+  
+  .read-more:hover {
+    color: #7c3aed;
+    text-decoration: underline;
+  }
+  
+  /* Mood Color Classes */
+  /* Excited - Yellow */
+  .mood-excited {
+    color: #eab308;
+  }
+  
+  .mood-excited-border {
+    border-left-color: #eab308;
+  }
+  
+  .mood-excited.mood-emoji-circle {
+    background-color: #eab308;
+    color: white;
+  }
+  
+  .mood-excited.mood-circle-icon {
+    color: white;
+  }
+  
+  .mood-excited.mood-button {
+    background-color: #fef9c3;
+  }
+  
+  .mood-excited.mood-button .mood-label {
+    color: #854d0e;
+  }
+  
+  /* Happy - Green */
+  .mood-happy {
+    color: #22c55e;
+  }
+  
+  .mood-happy-border {
+    border-left-color: #22c55e;
+  }
+  
+  .mood-happy.mood-emoji-circle {
+    background-color: #22c55e;
+    color: white;
+  }
+  
+  .mood-happy.mood-circle-icon {
+    color: white;
+  }
+  
+  .mood-happy.mood-button {
+    background-color: #dcfce7;
+  }
+  
+  .mood-happy.mood-button .mood-label {
+    color: #166534;
+  }
+  
+  /* Content - Indigo */
+  .mood-content {
+    color: #6366f1;
+  }
+  
+  .mood-content-border {
+    border-left-color: #6366f1;
+  }
+  
+  .mood-content.mood-emoji-circle {
+    background-color: #6366f1;
+    color: white;
+  }
+  
+  .mood-content.mood-circle-icon {
+    color: white;
+  }
+  
+  .mood-content.mood-button {
+    background-color: #e0e7ff;
+  }
+  
+  .mood-content.mood-button .mood-label {
+    color: #4338ca;
+  }
+  
+  /* Neutral - Gray */
+  .mood-neutral {
+    color: #6b7280;
+  }
+  
+  .mood-neutral-border {
+    border-left-color: #6b7280;
+  }
+  
+  .mood-neutral.mood-emoji-circle {
+    background-color: #6b7280;
+    color: white;
+  }
+  
+  .mood-neutral.mood-circle-icon {
+    color: white;
+  }
+  
+  .mood-neutral.mood-button {
+    background-color: #f3f4f6;
+  }
+  
+  .mood-neutral.mood-button .mood-label {
+    color: #374151;
+  }
+  
+  /* Fluctuating - Purple */
+  .mood-fluctuating {
+    color: #8b5cf6;
+  }
+  
+  .mood-fluctuating-border {
+    border-left-color: #8b5cf6;
+  }
+  
+  .mood-fluctuating.mood-emoji-circle {
+    background-color: #8b5cf6;
+    color: white;
+  }
+  
+  .mood-fluctuating.mood-circle-icon {
+    color: white;
+  }
+  
+  .mood-fluctuating.mood-button {
+    background-color: #f3e8ff;
+  }
+  
+  .mood-fluctuating.mood-button .mood-label {
+    color: #7e22ce;
+  }
+  
+  /* Anxious - Orange */
+  .mood-anxious {
+    color: #f97316;
+  }
+  
+  .mood-anxious-border {
+    border-left-color: #f97316;
+  }
+  
+  .mood-anxious.mood-emoji-circle {
+    background-color: #f97316;
+    color: white;
+  }
+  
+  .mood-anxious.mood-circle-icon {
+    color: white;
+  }
+  
+  .mood-anxious.mood-button {
+    background-color: #ffedd5;
+  }
+  
+  .mood-anxious.mood-button .mood-label {
+    color: #c2410c;
+  }
+  
+  /* Tired - Purple */
+  .mood-tired {
+    color: #a855f7;
+  }
+  
+  .mood-tired-border {
+    border-left-color: #a855f7;
+  }
+  
+  .mood-tired.mood-emoji-circle {
+    background-color: #a855f7;
+    color: white;
+  }
+  
+  .mood-tired.mood-circle-icon {
+    color: white;
+  }
+  
+  .mood-tired.mood-button {
+    background-color: #f5d0fe;
+  }
+  
+  .mood-tired.mood-button .mood-label {
+    color: #9333ea;
+  }
+  
+  /* Sad - Blue */
+  .mood-sad {
+    color: #3b82f6;
+  }
+  
+  .mood-sad-border {
+    border-left-color: #3b82f6;
+  }
+  
+  .mood-sad.mood-emoji-circle {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  .mood-sad.mood-circle-icon {
+    color: white;
+  }
+  
+  .mood-sad.mood-button {
+    background-color: #dbeafe;
+  }
+  
+  .mood-sad.mood-button .mood-label {
+    color: #2563eb;
+  }
+  
+  /* Angry - Red */
+  .mood-angry {
+    color: #ef4444;
+  }
+  
+  .mood-angry-border {
+    border-left-color: #ef4444;
+  }
+  
+  .mood-angry.mood-emoji-circle {
+    background-color: #ef4444;
+    color: white;
+  }
+  
+  .mood-angry.mood-circle-icon {
+    color: white;
+  }
+  
+  .mood-angry.mood-button {
+    background-color: #fee2e2;
+  }
+  
+  .mood-angry.mood-button .mood-label {
+    color: #dc2626;
+  }

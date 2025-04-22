@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router';
+import { useNavigate } from 'react-router';
 import { 
   Brain, Music, Dumbbell, BookHeart, 
   TrendingUp, Calendar, Award, Clock, Quote, Laugh,
-  Home, LogOut, Menu, X, Play, User, BarChart2,
-  Moon, Coffee, LightbulbIcon, Flag, Move
+  Home, LogOut, Menu, X, Play, User, BarChart2
 } from 'lucide-react';
 import UserService from '../../services/UserService';
 import DashboardService from '../../services/DashboardService';
 import VideoService from '../../services/VideoService';
+import MoodService from '../../services/MoodService';
 import YouTubeVideoPlayer from '../YouTubeVideoPlayer';
+import MoodAnalyticsSummary from './MoodAnalytics/MoodAnalyticsSummary';
+import Sidebar from '../SideBar/SideBar';
 import './Dashboard.css';
 
 // Mood trend descriptions and colors
@@ -27,17 +29,18 @@ const moodTrendConfig = {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState('');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setUser] = useState({});
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [dashboardStats, setDashboardStats] = useState({
-    journalCount: 9,
+    journalCount: 0,
     streak: 0,
-    lastActivity: '5 days ago',
+    lastActivity: 'No activity yet',
     moodTrend: {
-      trend: 'fluctuating',
-      description: 'Fluctuating'
+      trend: 'neutral',
+      description: 'No recent mood data'
     }
   });
+  const [moodData, setMoodData] = useState([]);
   const [recommendedVideos, setRecommendedVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentVideo, setCurrentVideo] = useState(null);
@@ -47,22 +50,45 @@ const Dashboard = () => {
       try {
         setIsLoading(true);
         // Fetch current user
-        const userData = await new UserService().getCurrentUser();
+        const userService = new UserService();
+        const userData = await userService.getCurrentUser();
         if (!userData) {
-          window.location.href = '/login';
+          navigate('/login');
           return;
         }
         setUser(userData);
         
-        // Fetch dashboard stats
+        // Create service instances
         const dashboardService = new DashboardService();
-        const statsResponse = await dashboardService.getDashboardStats();
-        setDashboardStats(statsResponse);
+        const moodService = new MoodService();
         
-        // Fetch video recommendations based on mood trend
-        const videoService = new VideoService();
-        const videos = await videoService.getRecommendedVideos(statsResponse.moodTrend.trend);
-        setRecommendedVideos(videos);
+        try {
+          // Fetch dashboard stats (may fail if endpoint not available)
+          const statsResponse = await dashboardService.getDashboardStats();
+          setDashboardStats(statsResponse);
+        } catch (statsError) {
+          console.warn('Error fetching dashboard stats, using defaults:', statsError);
+          // Leave default stats
+        }
+        
+        try {
+          // Fetch mood data (using safer implementation that handles errors internally)
+          const moodsResponse = await moodService.getAllMoods();
+          setMoodData(moodsResponse);
+        } catch (moodError) {
+          console.warn('Error fetching mood data:', moodError);
+          // Leave empty mood data
+        }
+        
+        try {
+          // Fetch video recommendations based on mood trend
+          const videoService = new VideoService();
+          const videos = await videoService.getRecommendedVideos(dashboardStats.moodTrend.trend);
+          setRecommendedVideos(videos);
+        } catch (videoError) {
+          console.warn('Error fetching video recommendations:', videoError);
+          // Leave empty recommendations
+        }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -71,27 +97,7 @@ const Dashboard = () => {
     };
     
     fetchDashboardData();
-    
-    // Set the sidebar to be open by default
-    setSidebarOpen(true);
-  }, []);
-
-  // Navigation handler
-  const handleNavigation = (path) => {
-    console.log(`Navigating to: ${path}`);
-    navigate(path);
-    setSidebarOpen(false);
-  };
-
-  // Logout handler
-  const handleLogout = async () => {
-    try {
-      await new UserService().logout();
-      window.location.href = '/login';
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
+  }, [navigate]);
 
   // Handle video click to play
   const handleVideoClick = (video) => {
@@ -109,7 +115,7 @@ const Dashboard = () => {
     const config = moodTrendConfig[trend] || moodTrendConfig.neutral;
     
     return {
-      icon: <TrendingUp className="icon purple" />,
+      icon: <TrendingUp className="icon" />,
       title: 'Mood Trend',
       value: config.label,
       colorClass: config.colorClass
@@ -119,77 +125,25 @@ const Dashboard = () => {
   // Build stats display with dynamic mood trend
   const statsDisplay = [
     {
-      icon: <BookHeart className="icon pink" />,
+      icon: <BookHeart className="icon" />,
       title: 'Journal Entries',
       value: dashboardStats.journalCount,
       colorClass: 'pink-bg'
     },
     getTrendDisplay(),
     {
-      icon: <Award className="icon yellow" />,
+      icon: <Award className="icon" />,
       title: 'Current Streak',
       value: `${dashboardStats.streak} days`,
       colorClass: 'yellow-bg'
     },
     {
-      icon: <Clock className="icon blue" />,
+      icon: <Clock className="icon" />,
       title: 'Last Activity',
       value: dashboardStats.lastActivity,
       colorClass: 'blue-bg'
     },
   ];
-
-  // Updated sidebar items to match the application names
-  const sidebarItems = [
-    {
-      icon: <Home className="sidebar-icon" />,
-      title: 'Home',
-      path: '/dashboard'
-    },
-    {
-      icon: <BookHeart className="sidebar-icon" />,
-      title: 'Journal',
-      path: '/journal'
-    },
-    {
-      icon: <Brain className="sidebar-icon" />,
-      title: 'Meditation',
-      path: '/meditation'
-    },
-    {
-      icon: <Music className="sidebar-icon" />,
-      title: 'Calming Music',
-      path: '/music'
-    },
-    {
-      icon: <Quote className="sidebar-icon" />,
-      title: 'Motivation',
-      path: '/motivation'
-    },
-    {
-      icon: <Laugh className="sidebar-icon" />,
-      title: 'Laugh Out Loud',
-      path: '/laughoutloud'
-    },
-    {
-      icon: <Dumbbell className="sidebar-icon" />,
-      title: 'Exercise',
-      path: '/exercise'
-    },
-    {
-      icon: <BarChart2 className="sidebar-icon" />,
-      title: 'Mood Analytics',
-      path: '/profile'
-    },
-    {
-      icon: <User className="sidebar-icon" />,
-      title: 'Profile',
-      path: '/user-profile'
-    }
-  ];
-
-  // Get current path for active state
-  const location = useLocation();
   
   return (
     <div className="dashboard-layout">
@@ -201,48 +155,17 @@ const Dashboard = () => {
         {sidebarOpen ? <X /> : <Menu />}
       </button>
       
-      {/* Updated Sidebar with fixed visibility and white background */}
-      <div className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
-        <div className="sidebar-header">
-          <Laugh className="logo-icon"/>
-          <h2 className="app-title">Happify</h2>
-        </div>
-        
-        <nav className="sidebar-nav">
-          {sidebarItems.map((item, index) => (
-            <button
-              key={index}
-              className={`sidebar-nav-item ${location.pathname === item.path ? 'active' : ''}`}
-              onClick={() => handleNavigation(item.path)}
-            >
-              <div className="nav-icon-container">
-                {item.icon}
-              </div>
-              <span>{item.title}</span>
-            </button>
-          ))}
-        </nav>
-        
-        {/* Logout button at the end of sidebar */}
-        <button
-          className="sidebar-logout-button"
-          onClick={handleLogout}
-        >
-          <div className="nav-icon-container logout-icon">
-            <LogOut className="sidebar-icon" />
-          </div>
-          <span>Log Out</span>
-        </button>
-      </div>
+      {/* Use the updated Sidebar component */}
+      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       
       {/* Main Content */}
       <div className="dashboard-main">
         <div className="dashboard-container">
           {/* Header */}
           <div className="dashboard-header">
-            <div className="dashboard-header-content">
+            <div className="dashboard-header-top">
               <h1 className="dashboard-title">
-                Welcome back{user.username !== undefined ? `, ${user.username}` : ''}!
+                Welcome back{user.username ? `, ${user.username}` : ''}!
               </h1>
               <p className="dashboard-date">
                 <Calendar className="inline-icon" />
@@ -275,11 +198,16 @@ const Dashboard = () => {
             ))}
           </div>
 
+          {/* Mood Analytics Summary Component */}
+          <div className="mood-analytics-container">
+            <MoodAnalyticsSummary />
+          </div>
+
           {/* Video Recommendations */}
           <div className="video-recommendations-section">
             <h2 className="section-title">Recommended Videos For Your Mood</h2>
             <p className="recommendation-subtitle">
-              Videos to help with your {dashboardStats.moodTrend.trend} mood
+              Videos to help with your {dashboardStats.moodTrend.description.toLowerCase()} mood
             </p>
             
             {isLoading ? (

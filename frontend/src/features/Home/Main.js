@@ -8,47 +8,33 @@ const Main = () => {
   const [emojiIndex, setEmojiIndex] = useState(0);
   const [floating, setFloating] = useState([]);
   const [backgroundMood, setBackgroundMood] = useState(0);
-  const [emojiExplosion, setEmojiExplosion] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(false);
-  const laughSoundRef = useRef(null);
-  const calmSoundRef = useRef(null);
   
   // Array of calming and happy emojis to rotate through
-  const emojis = ['😊', '😌', '🥰', '😇', '🧘', '🌈', '✨', '🌿', '💆', '🌸', '🌼', '🌞', '🌠', '💙', '☁️', '🦋'];
+  const emojis = ['😊', '😌', '🥰', '😇', '🧘', '✨', '🌿', '💆', '🌸', '🌼', '🌞', '🌠', '💙', '☁️', '🦋'];
   
-  // Sound initialization
+  // Rotate through emojis periodically
   useEffect(() => {
-    laughSoundRef.current = new Audio("https://freesound.org/data/previews/457/457932_4166055-lq.mp3");
-    laughSoundRef.current.volume = 0.3;
-    
-    calmSoundRef.current = new Audio("https://freesound.org/data/previews/364/364666_5963515-lq.mp3");
-    calmSoundRef.current.volume = 0.2;
-    calmSoundRef.current.loop = true;
+    const interval = setInterval(() => {
+      setEmojiIndex((prevIndex) => (prevIndex + 1) % emojis.length);
+    }, 3000);
+    return () => clearInterval(interval);
   }, []);
 
-  // Play sound function with safety checks
-  const playSound = (soundRef) => {
-    if (soundEnabled && soundRef.current) {
-      soundRef.current.currentTime = 0;
-      try {
-        soundRef.current.play().catch(e => console.log("Audio play prevented:", e));
-      } catch (error) {
-        console.log("Audio error:", error);
-      }
-    }
-  };
+  // Change background mood periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBackgroundMood((prevMood) => (prevMood + 1) % 5);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
-  // Stop sound function with safety checks
-  const stopSound = (soundRef) => {
-    if (soundRef.current) {
-      try {
-        soundRef.current.pause();
-        soundRef.current.currentTime = 0;
-      } catch (error) {
-        console.log("Audio error:", error);
-      }
-    }
-  };
+  // Create occasional floating emojis
+  useEffect(() => {
+    const interval = setInterval(() => {
+      addFloatingEmoji();
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
   
   // Create floating emoji effect with calming emojis - improved animation
   const addFloatingEmoji = (isExplosion = false) => {
@@ -92,84 +78,14 @@ const Main = () => {
     }, isExplosion ? 4000 : 7000);
   };
   
-  // Create emoji explosion effect - enhanced for better visibility
-  const triggerEmojiExplosion = () => {
-    setEmojiExplosion(true);
-    playSound(laughSoundRef);
-    
-    // Create a large number of emoji animations in waves
-    // First wave - more immediate burst
-    for (let i = 0; i < 50; i++) {
-      setTimeout(() => {
-        addFloatingEmoji(true);
-      }, i * 25); // Faster staggering for more immediate effect
-    }
-    
-    // Second wave - for sustained effect
-    setTimeout(() => {
-      for (let i = 0; i < 40; i++) {
-        setTimeout(() => {
-          addFloatingEmoji(true);
-        }, i * 35);
-      }
-    }, 1000);
-    
-    // Clear the explosion effect after animation completes
-    setTimeout(() => {
-      setEmojiExplosion(false);
-    }, 4500);
-  };
-  
-  // Toggle ambient sound
-  const toggleAmbientSound = () => {
-    setSoundEnabled(prev => {
-      if (!prev) {
-        playSound(calmSoundRef);
-      } else {
-        stopSound(calmSoundRef);
-      }
-      return !prev;
-    });
-  };
-  
-  // Handle primary button click
+  // Handler for primary button click
   const handlePrimaryButtonClick = () => {
-    navigate('/register');
-    triggerEmojiExplosion();
+    navigate('/dashboard');
   };
   
-  // Periodically add floating emojis for ambient effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!emojiExplosion) {
-        addFloatingEmoji(false);
-      }
-    }, 2000);
-    
-    return () => clearInterval(interval);
-  }, [emojiExplosion]);
-  
-  // Change emoji every 3 seconds for a more relaxing pace
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setEmojiIndex((prevIndex) => (prevIndex + 1) % emojis.length);
-    }, 3000);
-    
-    return () => clearInterval(interval);
-  }, [emojis.length]);
-  
-  // Background mood gradient that slowly changes
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setBackgroundMood((prev) => (prev + 1) % 5);
-    }, 8000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <div 
-      className={`page-container relative min-h-screen transition-all duration-1000 ${emojiExplosion ? 'emoji-explosion-active' : ''}`}
+      className="page-container relative min-h-screen transition-all duration-1000"
       style={{ 
         background: [
           'linear-gradient(to bottom, rgba(249,249,255,0.85), rgba(240,248,255,0.85))',
@@ -185,11 +101,6 @@ const Main = () => {
       
       {/* Emoji Container - Fixed positioning to avoid affecting layout */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-10">
-        {/* Emoji Burst Animation Overlay */}
-        {emojiExplosion && (
-          <div className="emoji-burst-overlay absolute inset-0 z-10" />
-        )}
-        
         {/* Floating Emojis with improved animation */}
         {floating.map((item) => (
           <div
@@ -211,22 +122,6 @@ const Main = () => {
             {item.emoji}
           </div>
         ))}
-      </div>
-      
-      {/* Sound Controls */}
-      <div className="absolute top-4 right-4 z-30 flex gap-3">
-        <button 
-          className={`p-2 rounded-full transition-all ${soundEnabled ? 'bg-purple-200' : 'bg-gray-100'}`}
-          onClick={toggleAmbientSound}
-        >
-          {soundEnabled ? '🔊' : '🔈'}
-        </button>
-        <button 
-          className="p-2 rounded-full bg-purple-100 hover:bg-purple-200 transition-all"
-          onClick={triggerEmojiExplosion}
-        >
-          😄
-        </button>
       </div>
       
       {/* Hero Section */}
@@ -299,7 +194,7 @@ const Main = () => {
             size={48} 
             color="#7C3AED" 
             className="mx-auto mb-6 animate-gentle-heartbeat cursor-pointer" 
-            onClick={triggerEmojiExplosion}
+            onClick={() => addFloatingEmoji(true)}
           />
           <h2 className="cta-title">Your Wellbeing Matters</h2>
           <p className="cta-description flex items-center justify-center">
@@ -313,7 +208,7 @@ const Main = () => {
           <div className="flex justify-center my-4">
             <button 
               className="py-3 px-6 bg-purple-100 hover:bg-purple-200 rounded-full text-xl transition-all transform hover:scale-105 shadow-sm"
-              onClick={triggerEmojiExplosion}
+              onClick={() => addFloatingEmoji(true)}
             >
               Brighten Your Day! 😄✨
             </button>
@@ -400,18 +295,6 @@ const Main = () => {
           100% { transform: translateY(0); }
         }
         
-        @keyframes burst-overlay {
-          0% { 
-            background-color: rgba(255, 255, 255, 0);
-          }
-          10% { 
-            background-color: rgba(255, 255, 255, 0.5);
-          }
-          100% { 
-            background-color: rgba(255, 255, 255, 0);
-          }
-        }
-        
         .bg-emoji-pattern {
           background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
@@ -452,19 +335,9 @@ const Main = () => {
           animation: gentle-bounce 3s ease-in-out infinite;
         }
         
-        .emoji-burst-overlay {
-          animation: burst-overlay 2s ease-out forwards;
-        }
-        
         .page-container {
           position: relative;
           overflow-x: hidden;
-        }
-        
-        .emoji-explosion-active {
-          transition: all 2s;
-          filter: brightness(1.05) contrast(0.95);
-          background-color: rgba(255, 255, 255, 0.15);
         }
         
         .delay-100 { animation-delay: 0.1s; }

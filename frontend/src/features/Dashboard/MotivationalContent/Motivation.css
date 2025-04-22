@@ -1,119 +1,272 @@
-/* Main container */
+/* Motivation.css */
 .motivation-container {
-    font-family: Arial, sans-serif;
-    margin: 0 auto;
     padding: 20px;
-    max-width: 1200px;
+    margin-left: 40px;
+    width: 95%;
   }
   
-  /* Sticky Header */
-  .motivation-sticky-header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #f3f4f6;
-    padding: 10px 20px;
-    border-bottom: 2px solid #ddd;
-  }
-  
-  /* Header Section */
+  /* Header */
   .motivation-header {
     text-align: center;
-    padding: 10px;
+    padding: 60px 20px 30px;
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin: 20px auto 40px;
+    position: relative;
+    z-index: 1;
   }
   
   .header-title {
-    font-size: 2.5rem;
-    font-weight: bold;
+    font-size: 3rem;
+    font-weight: 800;
+    color: #e65100; /* Orange to match sidebar */
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
   }
   
   .header-description {
     font-size: 1.2rem;
     color: #555;
+    max-width: 100%;
+    margin: 0 auto 20px;
+    line-height: 1.6;
   }
   
   /* Quote Box */
   .quote-box {
-    margin: 20px auto;
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto 20px;
+    position: relative;
+  }
+  
+  .quote-icon {
+    color: #ffb74d;
+    margin-bottom: 15px;
+    opacity: 0.6;
   }
   
   .quote-text {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-style: italic;
-    color: #4b5563;
+    color: #424242;
+    margin-bottom: 15px;
+    line-height: 1.5;
   }
   
   .quote-author {
-    margin-top: 10px;
-    font-size: 1rem;
-    color: #6d28d9;
+    font-size: 1.1rem;
+    color: #f57c00;
+    font-weight: 500;
+    text-align: right;
+    margin-bottom: 20px;
   }
   
   .quote-button {
-    background-color: #6d28d9;
+    background-color: #ff9800;
     color: white;
     border: none;
-    border-radius: 10px;
-    padding: 10px 20px;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
   }
   
   .quote-button:hover {
-    background-color: #7e3af2;
+    background-color: #f57c00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .quote-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Sticky Header and Navigation */
+  .motivation-sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #ffffff;
+    padding: 0 20px 20px;
+    border-bottom: 1px solid #ddd;
   }
   
   /* Category Navigation */
   .category-navigation {
     display: flex;
-    gap: 10px;
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 20px 0 0;
+    overflow-x: auto;
+    scrollbar-width: none; /* For Firefox */
+  }
+  
+  .category-navigation::-webkit-scrollbar {
+    display: none;
   }
   
   .category-button {
-    background-color: #ddd;
-    padding: 10px 15px;
-    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    background-color: #fff3e0;
+    color: #333;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s ease;
   }
   
   .category-button.active {
-    background-color: #6d28d9;
-    color: white;
+    background-color: #ff9800;
+    color: #fff;
+  }
+  
+  .category-button:hover {
+    background-color: #ffe0b2;
+  }
+  
+  .category-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Active Category Content */
+  .category-content {
+    margin-top: 20px;
+  }
+  
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 24px;
+  }
+  
+  .category-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #e65100; /* Orange to match sidebar */
+    margin-bottom: 4px;
+  }
+  
+  .category-description {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 0;
   }
   
   /* Video Grid */
   .video-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
+    gap: 24px;
+    width: 100%;
   }
   
   .video-card {
-    background: white;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+    background-color: white;
+  }
+  
+  .video-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .video-details {
+    padding: 16px;
   }
   
   .video-details h3 {
-    font-size: 1rem;
-    font-weight: bold;
-    margin-top: 5px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
   }
   
   .video-details p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  
+  .video-meta {
+    display: flex;
+    justify-content: space-between;
     font-size: 0.9rem;
-    color: #555;
   }
   
-  .video-details span {
-    font-size: 0.8rem;
-    color: #999;
+  .video-duration {
+    color: #777;
+    padding: 4px 8px;
+    background-color: #fff3e0;
+    border-radius: 4px;
+    font-weight: 500;
   }
   
+  /* Color classes for icons */
+  .text-red-500 {
+    color: #f44336;
+  }
+  
+  .text-blue-500 {
+    color: #2196f3;
+  }
+  
+  .text-teal-500 {
+    color: #009688;
+  }
+  
+  .text-purple-500 {
+    color: #9c27b0;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .motivation-container {
+      margin-left: 0;
+      width: 100%;
+      padding: 10px;
+    }
+    
+    .motivation-header {
+      padding: 40px 15px 25px;
+    }
+    
+    .header-title {
+      font-size: 2.5rem;
+    }
+    
+    .quote-text {
+      font-size: 1.2rem;
+    }
+    
+    .video-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .category-navigation {
+      padding: 10px 0;
+    }
+  }

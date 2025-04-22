@@ -1,13 +1,162 @@
 import axios from 'axios';
 
 class AnalyticsService {
- 
+  constructor() {
+    this.axiosInstance = axios.create({
+      baseURL: 'http://localhost:8000',
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  /**
+   * Get mood history based on time range
+   * @param {string} timeRange - 'week', 'month', 'year', or 'all'
+   * @returns {Promise<Object>} - Mood history data
+   */
+  async getMoodHistory(timeRange = 'week') {
+    try {
+      // Map timeRange to appropriate days value
+      let days;
+      switch (timeRange) {
+        case 'week':
+          days = 7;
+          break;
+        case 'month':
+          days = 30;
+          break;
+        case 'year':
+          days = 365;
+          break;
+        default:
+          days = 7; // Default to week
+      }
+
+      const response = await axios.get('/moods', {
+        params: { days },
+        withCredentials: true
+      });
+      
+      // Format the data for our component
+      const formattedData = response.data.moods.map(entry => ({
+        date: new Date(entry.timestamp.$date),
+        mood: entry.mood,
+        intensity: entry.intensity || this.getMoodIntensity(entry.mood)
+      }));
+      
+      return { data: formattedData };
+    } catch (error) {
+      console.error('Error fetching mood history:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get mood distribution (count of each mood type)
+   * @param {string} timeRange - 'week', 'month', 'year', or 'all'
+   * @returns {Promise<Object>} - Mood distribution data
+   */
+  async getMoodDistribution(timeRange = 'week') {
+    try {
+      // First get mood history
+      const moodHistory = await this.getMoodHistory(timeRange);
+      
+      // Calculate distribution
+      const distribution = {};
+      moodHistory.data.forEach(entry => {
+        if (!distribution[entry.mood]) {
+          distribution[entry.mood] = 0;
+        }
+        distribution[entry.mood]++;
+      });
+      
+      // Convert to array format
+      const formattedData = Object.keys(distribution).map(mood => ({
+        mood,
+        count: distribution[mood]
+      }));
+      
+      return { data: formattedData };
+    } catch (error) {
+      console.error('Error calculating mood distribution:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user's mood trend
+   * @returns {Promise<Object>} - Mood trend data
+   */
+  async getMoodTrend() {
+    try {
+      const response = await axios.get('/moods/trend', { withCredentials: true });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching mood trend:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user's last logged mood
+   * @returns {Promise<Object>} - Last mood data
+   */
+  async getLastMood() {
+    try {
+      const response = await axios.get('/moods/last', { withCredentials: true });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching last mood:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user's dashboard stats (combines multiple endpoints)
+   * @returns {Promise<Object>} - Dashboard stats
+   */
+  async getDashboardStats() {
+    try {
+      const response = await axios.get('/user/dashboard-stats', { withCredentials: true });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Helper function to map mood to intensity if not provided
+   * @param {string} mood - The mood name
+   * @returns {number} - The intensity value
+   */
+  getMoodIntensity(mood) {
+    const intensityMap = {
+      'excited': 5,
+      'happy': 4,
+      'content': 3,
+      'neutral': 2,
+      'anxious': 3,
+      'tired': 2,
+      'sad': 3,
+      'angry': 4
+    };
+    
+    return intensityMap[mood] || 3; // Default to medium intensity
+  }
+  
+  /** 
+   * The following methods are part of your original implementation
+   */
+  
   /**
    * Get mood distribution data for the specified time range
    * @param {string} timeRange - 'week', 'month', 'quarter', or 'year'
    * @returns {Promise<Object>} - Mood distribution data
    */
-  async getMoodDistribution(timeRange = 'month') {
+  async getMoodDistributionOld(timeRange = 'month') {
     try {
       const response = await this.axiosInstance.get(`/analytics/mood-distribution`, {
         params: { timeRange }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { 
-  Brain, Music, Dumbbell, BookHeart, 
+import {
+  Brain, Music, Dumbbell, BookHeart,
   Quote, Laugh, Home, LogOut, User, BarChart2
 } from 'lucide-react';
 import UserService from '../../services/UserService';
@@ -10,7 +10,7 @@ import './SideBar.css';
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
   const location = useLocation();
-
+  
   // Navigation handler
   const handleNavigation = (path) => {
     console.log(`Navigating to: ${path}`);
@@ -19,7 +19,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       setIsOpen(false);
     }
   };
-
+  
   // Logout handler
   const handleLogout = async () => {
     try {
@@ -29,60 +29,71 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       console.error('Error logging out:', error);
     }
   };
-
-  // Sidebar navigation items
+  
+  // Sidebar navigation items with specific colors for each
   const sidebarItems = [
     {
       icon: <Home className="sidebar-icon" />,
       title: 'Dashboard',
-      path: '/dashboard'
+      path: '/dashboard',
+      colorClass: 'blue-item'
     },
     {
       icon: <BookHeart className="sidebar-icon" />,
       title: 'Journal',
-      path: '/journal'
+      path: '/journal',
+      colorClass: 'pink-item'
     },
     {
       icon: <Brain className="sidebar-icon" />,
       title: 'Meditation',
-      path: '/meditation'
+      path: '/meditation',
+      colorClass: 'purple-item'
     },
     {
       icon: <Music className="sidebar-icon" />,
       title: 'Calming Music',
-      path: '/music'
-    },
-    {
-      icon: <Dumbbell className="sidebar-icon" />,
-      title: 'Exercise',
-      path: '/exercise'
+      path: '/music',
+      colorClass: 'indigo-item'
     },
     {
       icon: <Quote className="sidebar-icon" />,
       title: 'Motivation',
-      path: '/motivation'
+      path: '/motivation',
+      colorClass: 'orange-item'
     },
     {
       icon: <Laugh className="sidebar-icon" />,
       title: 'Laugh Out Loud',
-      path: '/laughoutloud'
+      path: '/laughoutloud',
+      colorClass: 'rose-item'
+    },
+    {
+      icon: <Dumbbell className="sidebar-icon" />,
+      title: 'Exercise',
+      path: '/exercise',
+      colorClass: 'green-item'
     },
     {
       icon: <BarChart2 className="sidebar-icon" />,
       title: 'Mood Analytics',
-      path: '/profile'
+      path: '/mood-analytics',
+      colorClass: 'yellow-item'
     },
     {
       icon: <User className="sidebar-icon" />,
       title: 'Profile',
-      path: '/user-profile'
+      path: '/user-profile',
+      colorClass: 'gray-item'
     }
   ];
-
+  
   return (
     <div className={`sidebar ${isOpen ? 'sidebar-open' : ''}`}>
       <div className="sidebar-header">
-        <Laugh className="avatar-icon"/>
+        <div className="logo-circle">
+          <Laugh className="logo-icon"/>
+        </div>
         <h2 className="app-title">Happify</h2>
       </div>
       
@@ -90,13 +101,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         {sidebarItems.map((item, index) => (
           <button
             key={index}
-            className={`sidebar-nav-item ${location.pathname === item.path ? 'active' : ''}`}
+            className={`sidebar-nav-item ${location.pathname === item.path ? 'active' : ''} ${item.colorClass}`}
             onClick={() => handleNavigation(item.path)}
           >
-            <div className="nav-icon-container">
+            <div className={`icon-circle ${item.colorClass}`}>
               {item.icon}
             </div>
-            <span>{item.title}</span>
+            <span className="nav-text">{item.title}</span>
           </button>
         ))}
       </nav>
@@ -106,12 +117,16 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         className="sidebar-logout-button"
         onClick={handleLogout}
       >
-        <div className="nav-icon-container logout-icon">
+        <div className="icon-circle red-item">
           <LogOut className="sidebar-icon" />
         </div>
-        <span>Log Out</span>
+        <span className="nav-text">Log Out</span>
       </button>
+      <div className="mt-6 text-center text-indigo-300 text-sm">
+            © 2025 Happify. All rights reserved.
+          </div>
     </div>
+    
   );
 };
 

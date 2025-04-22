@@ -1,6 +1,8 @@
 
 .meditation-container {
-    padding-top: 20px;
+    padding: 20px;
+    margin-left: 40px;
+    width: 95%;
   }
   
 /* Header */

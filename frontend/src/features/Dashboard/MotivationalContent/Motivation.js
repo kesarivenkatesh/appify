@@ -5,7 +5,7 @@ import {
   Cloud, 
   Heart, 
   Droplet,
-  Frown
+  Quote
 } from 'lucide-react';
 import "./Motivation.css";
 
@@ -15,20 +15,20 @@ const motivationalVideos = {
     { 
       id: "g-jwWYX7Jlo", 
       title: "Dream - Motivational TEDx Talk", 
-      description: "Discover your dreams and pursue them with passion.", 
+      description: "Discover your dreams and pursue them with passion", 
       duration: "10 mins" 
     },
     { 
       id: "mgmVOuLgFB0", 
       title: "Your Time Is Now - TEDx Talk", 
-      description: "Embrace opportunities and make the most of your time.", 
+      description: "Embrace opportunities and make the most of your time", 
       duration: "12 mins" 
     },
     {
-        id:"X4nGU4DZUwE",
-        title: "Powerful Motivational Speech - David Goggins", 
-        description: "You Owe it to you", 
-        duration: "19 mins" 
+      id: "X4nGU4DZUwE",
+      title: "Powerful Motivational Speech - David Goggins", 
+      description: "You Owe it to you", 
+      duration: "19 mins" 
     }
   ],
   focus: [
@@ -39,16 +39,15 @@ const motivationalVideos = {
       duration: "9 mins" 
     },
     {
-       id:"-jV1c1cm0sQ",
-       title: " Stay Focus Video", 
+      id: "-jV1c1cm0sQ",
+      title: "Stay Focus Video", 
       description: "Stay Focussed on your Goal", 
       duration: "3 mins" 
-
     },
     { 
       id: "ZOy0YgUDwDg", 
       title: "Never Give Up - Focus Video", 
-      description: "Keep striving and never quit, even when challenges arise.", 
+      description: "Keep striving and never quit, even when challenges arise", 
       duration: "15 mins" 
     }
   ],
@@ -66,11 +65,11 @@ const motivationalVideos = {
       duration: "5 mins" 
     },
     { 
-        id: "l6XK7GP4nOw", 
-        title: "Do It Now", 
-        description: "The Core Principles For Mastering Time Management - Brian Tracy", 
-        duration: "15 mins" 
-      }
+      id: "l6XK7GP4nOw", 
+      title: "Do It Now", 
+      description: "The Core Principles For Mastering Time Management - Brian Tracy", 
+      duration: "15 mins" 
+    }
   ],
   goals: [
     { 
@@ -82,39 +81,39 @@ const motivationalVideos = {
     { 
       id: "68IcEa2BRC8", 
       title: "Never Give Up", 
-      description: "NEVER GIVE UP - Best Motivational Speech ", 
+      description: "NEVER GIVE UP - Best Motivational Speech", 
       duration: "10 mins" 
     },
     { 
-        id: "NDLfh5rGsYQ", 
-        title: "Think Like a Warrior and Win Like a Champion", 
-        description: " Best Motivational Speech ", 
-        duration: "8 mins" 
-      }
+      id: "NDLfh5rGsYQ", 
+      title: "Think Like a Warrior and Win Like a Champion", 
+      description: "Best Motivational Speech", 
+      duration: "8 mins" 
+    }
   ]
 };
 
 // Category configuration for styling and icons
 const categoryConfig = {
   tedx: { 
-    icon: <Zap className="text-red-500" />, 
+    icon: <Zap className="category-icon text-red-500" />, 
     title: "TEDx Talks", 
-    description: "Inspiring talks to spark ideas and change perspectives." 
+    description: "Inspiring talks to spark ideas and change perspectives" 
   },
   focus: { 
-    icon: <Cloud className="text-blue-500" />, 
+    icon: <Cloud className="category-icon text-blue-500" />, 
     title: "Focus", 
-    description: "Videos to enhance your concentration and persistence." 
+    description: "Videos to enhance your concentration and persistence" 
   },
   timemanagement: { 
-    icon: <Droplet className="text-teal-500" />, 
+    icon: <Droplet className="category-icon text-teal-500" />, 
     title: "Time Management", 
-    description: "Learn to make the most of your time effectively." 
+    description: "Learn to make the most of your time effectively" 
   },
   goals: { 
-    icon: <Heart className="text-purple-500" />, 
+    icon: <Heart className="category-icon text-purple-500" />, 
     title: "Goals", 
-    description: "Motivational videos to help you set and achieve goals." 
+    description: "Motivational videos to help you set and achieve goals" 
   }
 };
 
@@ -143,32 +142,37 @@ const Motivation = () => {
       {/* Sticky Header */}
       <div className="motivation-sticky-header">
         <section className="motivation-header">
-          <h1 className="header-title"> Motivation Sanctuary </h1>
+          <h1 className="header-title">Motivation Sanctuary</h1>
           <p className="header-description">
             Fuel your mind with inspirational quotes and motivational videos to empower your growth and productivity.
           </p>
+
+          {/* Quote Box */}
           <div className="quote-box">
+            <div className="quote-icon">
+              <Quote size={36} />
+            </div>
             <p className="quote-text">{quote}</p>
-            <p className="quote-author">- {author}</p>
+            {author && <p className="quote-author">— {author}</p>}
             <button className="quote-button" onClick={fetchQuote}>
               New Quote
             </button>
           </div>
-        </section>
 
-        {/* Category Navigation */}
-        <div className="category-navigation">
-          {Object.keys(motivationalVideos).map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`category-button ${activeCategory === category ? 'active' : ''}`}
-            >
-              {categoryConfig[category].icon}
-              <span>{categoryConfig[category].title}</span>
-            </button>
-          ))}
-        </div>
+          {/* Category Navigation */}
+          <div className="category-navigation">
+            {Object.keys(motivationalVideos).map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`category-button ${activeCategory === category ? 'active' : ''}`}
+              >
+                {categoryConfig[category].icon}
+                <span>{categoryConfig[category].title}</span>
+              </button>
+            ))}
+          </div>
+        </section>
       </div>
 
       {/* Active Category Section */}
@@ -188,7 +192,9 @@ const Motivation = () => {
               <div className="video-details">
                 <h3>{video.title}</h3>
                 <p>{video.description}</p>
-                <span>{video.duration}</span>
+                <div className="video-meta">
+                  <span className="video-duration">{video.duration}</span>
+                </div>
               </div>
             </div>
           ))}

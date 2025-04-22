@@ -69,6 +69,23 @@ class VideoService {
       throw error;
     }
   }
+   /**
+   * Get user's watched videos
+   * @param {number} limit - Maximum number of videos to return
+   * @returns {Promise} Promise with watched videos
+   */
+   async getWatchedVideos(limit = 10) {
+    try {
+      const response = await axios.get('/user/watched-videos', {
+        params: { limit }
+      });
+      return response.data || [];
+    } catch (error) {
+      console.error('Error fetching watched videos:', error);
+      return [];
+    }
+  }
 }
 
 export default VideoService;
+

@@ -1,163 +1,183 @@
-/* Sidebar Styles */
+/* SideBar.css */
 .sidebar {
-    width: 250px;
-    background-color: white;
-    color: #1a283e;
     position: fixed;
-    height: 100vh;
-    left: 0;
     top: 0;
-    overflow-y: auto;
-    transition: transform 0.3s ease;
-    z-index: 1000;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    background-color: #f8f9fa;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-    border-right: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    z-index: 100;
+    padding: 1.5rem 1rem;
   }
   
   .sidebar-header {
-    padding: 20px;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;
+  }
+  
+  .logo-circle {
+    background: linear-gradient(135deg, #ff6b6b, #ff9f7f);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+  }
+  
+  .logo-icon {
+    color: white;
+    width: 24px;
+    height: 24px;
   }
   
   .app-title {
-    margin: 0 0 0 10px;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #8865ff;
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    font-style: italic;
+    background: linear-gradient(
+      to right,
+      #ff61a6, /* pink */
+      #ffb86c, /* orange */
+      #ffde59, /* yellow */
+      #a5d6a7, /* green */
+      #81d4fa, /* blue */
+      #b39ddb, /* purple */
+      #ff61a6  /* pink again - to make the gradient loop smoothly */
+    );
+    background-size: 300% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: rainbow 8s linear infinite;
   }
   
-  .avatar-icon {
-    width: 30px;
-    height: 30px;
-    color: #8865ff;
+  @keyframes rainbow {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 25%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
   }
   
   .sidebar-nav {
-    padding: 20px 0;
-    flex: 1;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
     overflow-y: auto;
+    gap: 0.75rem;
   }
   
-  .sidebar-nav-item {
+  .sidebar-nav-item, .sidebar-logout-button {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
-    width: 100%;
-    text-align: left;
-    background: none;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
     border: none;
-    color: #333;
-    font-size: 1rem;
+    background: transparent;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
   }
   
-  .sidebar-nav-item:hover {
+  .sidebar-nav-item:hover, .sidebar-logout-button:hover {
     background-color: rgba(0, 0, 0, 0.05);
   }
   
   .sidebar-nav-item.active {
-    background-color: rgba(0, 0, 0, 0.05);
-    font-weight: 600;
-    color: #8865ff;
+    background-color: rgba(0, 0, 0, 0.075);
+  }
+  
+  .icon-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
   }
   
   .sidebar-icon {
-    margin-right: 10px;
+    color: white;
     width: 20px;
     height: 20px;
-    color: white;
   }
   
-  /* Nav Icon Container with Gradient Background */
-  .nav-icon-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 15px;
-    background: linear-gradient(to bottom right, #3a7bd5, #3a6073);
-  }
-  
-  /* Different gradient colors for each nav item */
-  .sidebar-nav-item:nth-child(1) .nav-icon-container {
-    background: linear-gradient(to bottom right, #43cea2, #185a9d); /* Home */
-  }
-  
-  .sidebar-nav-item:nth-child(2) .nav-icon-container {
-    background: linear-gradient(to bottom right, #ff5f6d, #ffc371); /* Journal */
-  }
-  
-  .sidebar-nav-item:nth-child(3) .nav-icon-container {
-    background: linear-gradient(to bottom right, #4facfe, #00f2fe); /* Meditation */
-  }
-  
-  .sidebar-nav-item:nth-child(4) .nav-icon-container {
-    background: linear-gradient(to bottom right, #a044ff, #6a3093); /* Calming Music */
-  }
-  
-  .sidebar-nav-item:nth-child(5) .nav-icon-container {
-    background: linear-gradient(to bottom right, #fa709a, #fee140); /* Exercise */
-  }
-  
-  .sidebar-nav-item:nth-child(6) .nav-icon-container {
-    background: linear-gradient(to bottom right, #ff9a44, #fc6076); /* Motivation */
-  }
-  
-  .sidebar-nav-item:nth-child(7) .nav-icon-container {
-    background: linear-gradient(to bottom right, #ffd89b, #ff9a9e); /* Laugh Out Loud */
-  }
-  
-  .sidebar-nav-item:nth-child(8) .nav-icon-container {
-    background: linear-gradient(to bottom right, #614385, #516395); /* Mood Analytics */
-  }
-  
-  .sidebar-nav-item:nth-child(9) .nav-icon-container {
-    background: linear-gradient(to bottom right, #56ab2f, #a8e063); /* Profile */
-  }
-  
-  /* Logout button styling */
-  .sidebar-logout-button {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    width: 100%;
-    text-align: left;
-    background: none;
-    border: none;
+  .nav-text {
+    font-size: 16px;
+    font-weight: 700;
     color: #333;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  }
+  
+  .sidebar-logout-button {
     margin-top: auto;
-    margin-bottom: 20px;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    padding-top: 20px;
   }
   
-  .sidebar-logout-button:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    color: #ff6b6b;
+  /* Colors for each navigation item */
+  .blue-item .icon-circle {
+    background-color: #64b5f6;
   }
   
-  .logout-icon {
-    background: linear-gradient(to bottom right, #ff6b6b, #ff3838);
+  .pink-item .icon-circle {
+    background-color: #f48fb1;
   }
   
-  /* Responsive Styles - only hide sidebar on very small screens */
+  .purple-item .icon-circle {
+    background-color: #b39ddb;
+  }
+  
+  .indigo-item .icon-circle {
+    background-color: #7986cb;
+  }
+  
+  .orange-item .icon-circle {
+    background-color: #ffb74d;
+  }
+  
+  .rose-item .icon-circle {
+    background-color: #f06292;
+  }
+  
+  .green-item .icon-circle {
+    background-color: #81c784;
+  }
+  
+  .yellow-item .icon-circle {
+    background-color: #ffd54f;
+  }
+  
+  .gray-item .icon-circle {
+    background-color: #90a4ae;
+  }
+  
+  .red-item .icon-circle {
+    background-color: #e57373;
+  }
+  
+  /* Mobile responsiveness */
   @media (max-width: 768px) {
     .sidebar {
-      transform: translateX(-100%);
+      width: 0;
+      padding: 1.5rem 0;
+      overflow: hidden;
     }
     
-    .sidebar.sidebar-open {
-      transform: translateX(0);
+    .sidebar-open {
+      width: 280px;
+      padding: 1.5rem 1rem;
     }
   }

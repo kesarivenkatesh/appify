@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState } from 'react';
 import { 
   Smile, Frown, Meh, Zap, Battery, 
   Coffee, Cloud, Angry, HeartHandshake
 } from 'lucide-react';
 import MoodService from '../../../services/MoodService';
 import { useNavigate } from 'react-router';
-//import { AuthContext} from '../../AuthContext/AuthContext';
 import { triggerEmojiExplosion } from '../../AppWrapper';
 
 // Expanded mood options with intensity values
@@ -25,42 +24,58 @@ const MoodCheck = () => {
   const [note, setNote] = useState('');
   const [isLogging, setIsLogging] = useState(false);
   const [logSuccess, setLogSuccess] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
-  
-
-  
-  
 
   const handleMoodSelect = (mood) => {
     setSelectedMood(mood);
+    setError(null);
     
     // Trigger emoji explosion for positive moods
     if (['excited', 'happy', 'content'].includes(mood)) {
-      triggerEmojiExplosion();
+      if (typeof triggerEmojiExplosion === 'function') {
+        triggerEmojiExplosion();
+      }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!selectedMood) return;
+    if (!selectedMood) {
+      setError("Please select a mood before continuing");
+      return;
+    }
     
     setIsLogging(true);
+    setError(null);
     
     try {
+      console.log("Selected mood:", selectedMood);
+      
       // Get the intensity value from the selected mood
       const selectedMoodObj = moodOptions.find(m => m.value === selectedMood);
       const intensity = selectedMoodObj ? selectedMoodObj.intensity : 0;
       
-      // Log the mood to the backend
-      const moodService = new MoodService();
-      await moodService.logMood({
+      // Create timestamp
+      const now = new Date();
+      
+      // Prepare mood data
+      const moodData = {
         mood: selectedMood,
         intensity: intensity,
         note: note.trim(),
-        timestamp: new Date().toISOString()
-      });
+        timestamp: now.toISOString(),
+        date: now.toISOString().split('T')[0] // Add date in YYYY-MM-DD format
+      };
       
+      console.log("Sending mood data:", moodData);
+      
+      // Log the mood
+      const moodService = new MoodService();
+      await moodService.logMood(moodData);
+      
+      console.log("Mood logged successfully");
       setLogSuccess(true);
       
       // Automatically navigate to dashboard after short delay
@@ -70,6 +85,23 @@ const MoodCheck = () => {
       
     } catch (error) {
       console.error('Failed to log mood:', error);
+      
+      // Handle different error scenarios
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        if (error.response.status === 401 || error.response.status === 403) {
+          setError("You must be logged in to log your mood. Please log in and try again.");
+        } else {
+          setError(`Server error (${error.response.status}): ${error.response.data?.error || 'Unknown error'}`);
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        setError("Could not connect to the server. Please check your internet connection and try again.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setError(`Failed to log your mood: ${error.message || 'Unknown error'}`);
+      }
     } finally {
       setIsLogging(false);
     }
@@ -80,6 +112,14 @@ const MoodCheck = () => {
       <div className="space-y-8">
         <section className="bg-white rounded-xl shadow-lg p-8">
           <h1 className="text-3xl font-bold text-center mb-8 text-indigo-800">How are you feeling today?</h1>
+          
+          {/* Error message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+              {error}
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               {moodOptions.map((mood) => (
@@ -131,6 +171,7 @@ const MoodCheck = () => {
           </form>
         </section>
 
+        {/* Success message */}
         {logSuccess && (
           <div className="fixed inset-x-0 bottom-10 mx-auto w-max">
             <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md">

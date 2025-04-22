@@ -1,68 +1,123 @@
 import React, { useState } from 'react';
 import { VideoPlayer } from '../VideoPlayer';
+import { Dumbbell } from 'lucide-react';
+import './Exercise.css';
 
 const exerciseVideos = [
   { 
     id: 'ml6cT4AZdqI', 
     title: '30-Minute Full Body Workout', 
-    category: 'Cardio'
+    category: 'Cardio',
+    description: 'Complete full-body workout',
+    duration: '30 mins'
   },
   { 
     id: 'sTANio_2E0Q', 
     title: 'Beginner Yoga Flow', 
-    category: 'Yoga'
+    category: 'Yoga',
+    description: 'Gentle yoga for beginners',
+    duration: '15 mins'
   },
   { 
     id: 'RSxBqqYRTNY', 
     title: 'Strength Training Workout for Beginners', 
-    category: 'Strength Training'
+    category: 'Strength Training',
+    description: 'Build strength with basic moves',
+    duration: '20 mins'
   },
   { 
     id: 'vxdlB3SnkGQ', 
     title: 'Dynamic Movement Mobility Routine at Home', 
-    category: 'Movements'
+    category: 'Movements',
+    description: 'Improve flexibility and mobility',
+    duration: '15 mins'
   },
   { 
     id: 'dj03_VDetdw', 
     title: 'Cardio Workout for Beginners', 
-    category: 'Cardio'
+    category: 'Cardio',
+    description: 'Easy cardio to get started',
+    duration: '20 mins'
   },
   { 
     id: 'OWGXhg50EHI', 
-    title: 'Cardio Workout for Beginners', 
-    category: 'Cardio'
+    title: 'High Intensity Cardio Workout', 
+    category: 'Cardio',
+    description: 'Burn calories with high intensity',
+    duration: '25 mins'
   },
   { 
     id: 'Eml2xnoLpYE', 
     title: '25 minute Full Body Yoga', 
-    category: 'Yoga'
+    category: 'Yoga',
+    description: 'Energizing full-body stretch',
+    duration: '25 mins'
   },
   { 
     id: '2IcWJobNDck', 
     title: 'Morning Mobility Yoga', 
-    category: 'Yoga'
+    category: 'Yoga',
+    description: 'Start your day with gentle movement',
+    duration: '15 mins'
   },
   { 
     id: 'xb0vui7Ny8A', 
-    title: 'Improve functional Strength with these Exercises', 
-    category: 'Strength Training'
+    title: 'Improve Functional Strength with these Exercises', 
+    category: 'Strength Training',
+    description: 'Build everyday functional strength',
+    duration: '30 mins'
   },
   {
     id:'GcZJhNi2yOM',
     title: 'Best Exercises for Runners | Strength Training',
-    category: 'Strength Training'
+    category: 'Strength Training',
+    description: 'Support your running with strength',
+    duration: '20 mins'
   },
   { 
     id: 'kqaNUjTR70A', 
-    title: 'Fast 20 minute Walk for Fatloss', 
-    category: 'Movements'
+    title: 'Fast 20 minute Walk for Fat Loss', 
+    category: 'Movements',
+    description: 'Walking workout for fat burning',
+    duration: '20 mins'
   },
   { 
     id: '4bGXW8vuZvM', 
     title: 'Power Walk at Home', 
-    category: 'Movements'
+    category: 'Movements',
+    description: 'Indoor walking with intensity',
+    duration: '30 mins'
   }
 ];
+
+// Category configuration with descriptions and icons
+const categoryConfig = {
+  'All': {
+    title: 'All Workouts',
+    description: 'Explore our complete collection of exercise videos',
+    icon: <Dumbbell className="category-icon text-green-500" />
+  },
+  'Cardio': {
+    title: 'Cardio',
+    description: 'Get your heart pumping with these energizing workouts',
+    icon: <Dumbbell className="category-icon text-red-500" />
+  },
+  'Yoga': {
+    title: 'Yoga',
+    description: 'Improve flexibility, balance, and mental clarity',
+    icon: <Dumbbell className="category-icon text-purple-500" />
+  },
+  'Strength Training': {
+    title: 'Strength Training',
+    description: 'Build muscle and increase your overall strength',
+    icon: <Dumbbell className="category-icon text-blue-500" />
+  },
+  'Movements': {
+    title: 'Movement Routines',
+    description: 'Enhance mobility and functional movement patterns',
+    icon: <Dumbbell className="category-icon text-teal-500" />
+  }
+};
 
 const Exercise = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -76,49 +131,57 @@ const Exercise = () => {
     : exerciseVideos.filter(video => video.category === selectedCategory);
 
   return (
-    <div className="container mx-auto px-4 space-y-8">
+    <div className="exercise-container">
       {/* Sticky Header */}
-      <section className="bg-white rounded-lg shadow-md p-14 sticky top-0 z-10">
-        <h2 className="text-3xl font-bold">Daily Exercise</h2>
-        <p className="text-gray-700 text-lg">
-          Choose from our collection of exercise and yoga videos to stay active and healthy. Remember to warm up before starting any exercise routine.
-        </p>
+      <div className="exercise-sticky-header">
+        <section className="exercise-header">
+          <h1 className="header-title">Daily Exercise</h1>
+          <p className="header-description">
+            Choose from our collection of exercise and yoga videos to stay active and healthy. 
+            Regular physical activity boosts your mood and energy while improving overall health.
+          </p>
 
-        {/* Category Buttons */}
-        <div className="flex flex-wrap gap-4 mt-4">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-5 py-2 rounded-full transition-all ${
-                selectedCategory === category 
-                  ? 'bg-blue-600 text-white font-semibold' 
-                  : 'bg-gray-300 text-gray-800 hover:bg-gray-400'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
+          {/* Category Navigation */}
+          <div className="category-navigation">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`category-button ${selectedCategory === category ? 'active' : ''}`}
+              >
+                {categoryConfig[category].icon}
+                <span>{category}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* Active Category Content */}
+      <section className="category-content">
+        <div className="category-header">
+          {categoryConfig[selectedCategory].icon}
+          <div>
+            <h2 className="category-title">{categoryConfig[selectedCategory].title}</h2>
+            <p className="category-description">{categoryConfig[selectedCategory].description}</p>
+          </div>
         </div>
-      </section>
-
-      {/* Exercise Videos */}
-      <section className="bg-white rounded-lg shadow-md p-14">
-        <h2 className="text-3xl font-bold mb-6">Workout Videos</h2>
 
         {/* Video Grid */}
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="video-grid">
           {filteredVideos.map((video) => (
             <div 
               key={video.id} 
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:scale-105 transition-transform"
+              className="video-card"
             >
               <VideoPlayer videoId={video.id} title={video.title} />
-              <div className="p-4">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{video.title}</h3>
-                <span className="text-sm text-gray-600 bg-gray-200 px-3 py-1 rounded-full inline-block">
-                  {video.category}
-                </span>
+              <div className="video-details">
+                <h3>{video.title}</h3>
+                <p>{video.description}</p>
+                <div className="video-meta">
+                  <span className="video-duration">{video.duration}</span>
+                  <span className="video-category">{video.category}</span>
+                </div>
               </div>
             </div>
           ))}
@@ -126,7 +189,7 @@ const Exercise = () => {
 
         {/* No Videos Message */}
         {filteredVideos.length === 0 && (
-          <p className="text-center text-gray-500 mt-6 text-lg">
+          <p className="no-videos-message">
             No videos found in this category.
           </p>
         )}

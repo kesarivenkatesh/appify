@@ -1,11 +1,63 @@
 import { useState, useEffect } from 'react';
-import { BookHeart, Plus, Send, Edit2, Trash2, X, Calendar, Clock, Tag, Smile, Meh, Frown } from 'lucide-react';
+import { 
+  BookHeart, Plus, Send, Edit2, Trash2, X, Calendar, Clock, Tag, 
+  Smile, Meh, Frown, Zap, Music, Cloud, Coffee, AlertTriangle, 
+  Sun, Moon
+} from 'lucide-react';
 import JournalService from '../../../services/JournalService';
 import { useEmojiAnimation } from '../../EmojiAnimationContext';
+import './Journal.css';
 
+// Mood configurations matching the Dashboard moodTrendConfig
+const moodConfig = {
+  'excited': { 
+    label: 'Excited',
+    colorClass: 'mood-excited',
+    icon: <Sun size={18} strokeWidth={2} className="mood-icon" />
+  },
+  'happy': { 
+    label: 'Positive', 
+    colorClass: 'mood-happy',
+    icon: <Smile size={18} strokeWidth={2} className="mood-icon" />
+  },
+  'content': { 
+    label: 'Content', 
+    colorClass: 'mood-content',
+    icon: <Music size={18} strokeWidth={2} className="mood-icon" />
+  },
+  'neutral': { 
+    label: 'Neutral', 
+    colorClass: 'mood-neutral',
+    icon: <Meh size={18} strokeWidth={2} className="mood-icon" />
+  },
+  'fluctuating': { 
+    label: 'Fluctuating', 
+    colorClass: 'mood-fluctuating',
+    icon: <Cloud size={18} strokeWidth={2} className="mood-icon" />
+  },
+  'anxious': { 
+    label: 'Anxious', 
+    colorClass: 'mood-anxious',
+    icon: <AlertTriangle size={18} strokeWidth={2} className="mood-icon" />
+  },
+  'tired': { 
+    label: 'Tired', 
+    colorClass: 'mood-tired',
+    icon: <Coffee size={18} strokeWidth={2} className="mood-icon" />
+  },
+  'sad': { 
+    label: 'Sad', 
+    colorClass: 'mood-sad',
+    icon: <Frown size={18} strokeWidth={2} className="mood-icon" />
+  },
+  'angry': { 
+    label: 'Angry', 
+    colorClass: 'mood-angry',
+    icon: <Zap size={18} strokeWidth={2} className="mood-icon" />
+  }
+};
 
 const Journal = () => {
-
   const [entries, setEntries] = useState([]);
   const [isWriting, setIsWriting] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
@@ -21,9 +73,7 @@ const Journal = () => {
   const journalService = new JournalService();
   const { applyTheme } = useEmojiAnimation();
 
-
   useEffect(() => {
-    
     if (isAuthenticated) {
       fetchEntries();
       applyTheme('calm');
@@ -100,16 +150,13 @@ const Journal = () => {
   };
 
   const getMoodIcon = (mood) => {
-    switch (mood) {
-      case 'happy':
-        return <Smile className="h-5 w-5 text-green-500" />;
-      case 'neutral':
-        return <Meh className="h-5 w-5 text-yellow-500" />;
-      case 'sad':
-        return <Frown className="h-5 w-5 text-red-500" />;
-      default:
-        return <Meh className="h-5 w-5 text-yellow-500" />;
-    }
+    const config = moodConfig[mood] || moodConfig.neutral;
+    return config.icon;
+  };
+
+  const getMoodColorClass = (mood) => {
+    const config = moodConfig[mood] || moodConfig.neutral;
+    return config.colorClass;
   };
 
   const handleEdit = (entry) => {
@@ -159,37 +206,37 @@ const Journal = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 ">
-      <div className="flex justify-between items-center mb-8 pt-14">
+    <div className="journal-container">
+      <div className="journal-header">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Journal</h1>
-          <p className="text-gray-600">A safe space for your thoughts and feelings</p>
+          <h1 className="journal-title">Journal</h1>
+          <p className="journal-subtitle">A safe space for your thoughts and feelings</p>
         </div>
         {!isWriting && (
           <button
             onClick={() => setIsWriting(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
+            className="new-entry-button"
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="button-icon" />
             New Entry
           </button>
         )}
       </div>
 
       {error && (
-        <div className="bg-red-50 text-red-500 p-4 rounded-lg mb-6 flex items-center justify-between">
+        <div className="error-message">
           <span>{error}</span>
-          <button onClick={() => setError('')} className="text-red-400 hover:text-red-500">
-            <X className="h-5 w-5" />
+          <button onClick={() => setError('')} className="close-error">
+            <X className="icon-sm" />
           </button>
         </div>
       )}
 
       {isWriting ? (
-        <div className="bg-white rounded-xl shadow-lg mb-8 overflow-auto max-w-3xl mx-auto">
-          <form onSubmit={handleSubmit} className="p-6">
-            <div className="mb-6">
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="journal-editor">
+          <form onSubmit={handleSubmit} className="editor-form">
+            <div className="form-group">
+              <label htmlFor="title" className="form-label">
                 Title
               </label>
               <input
@@ -197,52 +244,53 @@ const Journal = () => {
                 id="title"
                 value={newEntry.title}
                 onChange={(e) => setNewEntry({ ...newEntry, title: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="form-input"
                 placeholder="Give your entry a title..."
               />
             </div>
 
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="form-group">
+              <label className="form-label">
                 Mood
               </label>
-              <div className="flex gap-4">
-                {['happy', 'neutral', 'sad'].map((mood) => (
+                <div className="mood-selector">
+                {Object.keys(moodConfig).map((mood) => (
                   <button
                     key={mood}
                     type="button"
                     onClick={() => setNewEntry({ ...newEntry, mood })}
-                    className={`p-3 rounded-lg flex items-center gap-2 ${
-                      newEntry.mood === mood
-                        ? 'bg-purple-50 text-purple-600'
-                        : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
-                    }`}
+                    className={`mood-button ${
+                      newEntry.mood === mood ? 'selected' : ''
+                    } ${getMoodColorClass(mood)}`}
+                    title={moodConfig[mood].label}
                   >
-                    {getMoodIcon(mood)}
-                    <span className="capitalize">{mood}</span>
+                    <div className={`mood-circle-icon ${getMoodColorClass(mood)}`}>
+                      {getMoodIcon(mood)}
+                    </div>
+                    <span className="mood-label">{moodConfig[mood].label}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="form-group">
+              <label className="form-label">
                 Tags
               </label>
-              <div className="flex flex-wrap gap-2 mb-2">
+              <div className="tags-container">
                 {newEntry.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-600 rounded-full"
+                    className="tag"
                   >
-                    <Tag className="h-4 w-4" />
+                    <Tag className="icon-xs" />
                     {tag}
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(tag)}
-                      className="hover:text-purple-800"
+                      className="remove-tag"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="icon-xs" />
                     </button>
                   </span>
                 ))}
@@ -252,13 +300,13 @@ const Journal = () => {
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={handleAddTag}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="form-input"
                 placeholder="Add tags (press Enter to add)..."
               />
             </div>
 
-            <div className="mb-6">
-              <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="form-group">
+              <label htmlFor="content" className="form-label">
                 Content
               </label>
               <textarea
@@ -266,12 +314,12 @@ const Journal = () => {
                 rows={8}
                 value={newEntry.content}
                 onChange={(e) => setNewEntry({ ...newEntry, content: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="form-textarea"
                 placeholder="Write your thoughts here..."
               />
             </div>
 
-            <div className="flex justify-end gap-4">
+            <div className="form-actions">
               <button
                 type="button"
                 onClick={() => {
@@ -279,84 +327,86 @@ const Journal = () => {
                   setEditingEntry(null);
                   setNewEntry({ title: '', content: '', mood: 'neutral', tags: [] });
                 }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-900"
+                className="cancel-button"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex items-center gap-2 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
+                className="save-button"
               >
-                <Send className="h-5 w-5" />
+                <Send className="button-icon" />
                 {editingEntry ? 'Update' : 'Save'}
               </button>
             </div>
           </form>
         </div>
-      ) :  entries.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl shadow-sm max-w-3xl mx-auto">
-          <BookHeart className="h-16 w-16 text-purple-200 mx-auto mb-4" />
-          <h3 className="text-xl font-medium text-gray-900 mb-2">Your Journal Awaits</h3>
-          <p className="text-gray-600 mb-8">Start writing your first entry to begin your journey</p>
+      ) : entries.length === 0 ? (
+        <div className="empty-journal">
+          <BookHeart className="empty-icon" />
+          <h3 className="empty-title">Your Journal Awaits</h3>
+          <p className="empty-subtitle">Start writing your first entry to begin your journey</p>
           <button
             onClick={() => setIsWriting(true)}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
+            className="start-writing-button"
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="button-icon" />
             Write First Entry
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 max-h-[80vh] overflow-y-auto whitespace-nowrap md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+        <div className="entries-grid">
           {entries.slice(0).reverse().map((entry) => (
-            <div key={entry._id.$oid} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-auto h-full flex flex-col">
-              <div className="p-6 flex flex-col flex-grow">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-3">
-                    {getMoodIcon(entry.mood)}
-                    <h3 className="text-xl font-semibold text-gray-900">{entry.title}</h3>
+            <div key={entry._id.$oid} className={`entry-card ${getMoodColorClass(entry.mood)}-border`}>
+              <div className="entry-content">
+                <div className="entry-header">
+                  <div className="entry-title-container">
+                    <div className={`mood-emoji-circle ${getMoodColorClass(entry.mood)}`}>
+                      {getMoodIcon(entry.mood)}
+                    </div>
+                    <h3 className="entry-title">{entry.title}</h3>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="entry-actions">
                     <button
                       onClick={() => handleEdit(entry)}
-                      className="p-2 text-gray-400 hover:text-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
+                      className="edit-button"
                     >
-                      <Edit2 className="h-5 w-5" />
+                      <Edit2 className="icon-sm" />
                     </button>
                     <button
                       onClick={() => handleDelete(entry)}
-                      className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                      className="delete-button"
                     >
-                      <Trash2 className="h-5 w-5" />
+                      <Trash2 className="icon-sm" />
                     </button>
                   </div>
                 </div>
                 
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="entry-tags">
                   {entry.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-600 rounded-full text-sm"
+                      className="tag-small"
                     >
-                      <Tag className="h-3 w-3" />
+                      <Tag className="icon-xs" />
                       {tag}
                     </span>
                   ))}
                 </div>
 
-                <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
+                <div className="entry-date">
+                  <div className="date-item">
+                    <Calendar className="icon-xs" />
                     <span>{formatDate(entry.date)}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
+                  <div className="date-item">
+                    <Clock className="icon-xs" />
                     <span>{formatTime(entry.date)}</span>
                   </div>
                 </div>
                 
-                <div className="flex-grow">
-                  <p className="text-gray-600 whitespace-pre-wrap line-clamp-6">
+                <div className="entry-body">
+                  <p className="entry-text">
                     {entry.content}
                   </p>
                 </div>
@@ -364,7 +414,7 @@ const Journal = () => {
                 {entry.content.length > 300 && (
                   <button 
                     onClick={() => handleEdit(entry)}
-                    className="text-purple-600 hover:text-purple-800 text-sm mt-4 self-start"
+                    className="read-more"
                   >
                     Read more
                   </button>

@@ -74,7 +74,6 @@ const EmojiAnimation = ({
       "⭐",
       "✨",
       "💫",
-      "🌈",
       "💖",
       "💕",
       "💓",
@@ -179,7 +178,7 @@ const EmojiAnimation = ({
   };
 
   // Periodically add floating emojis for ambient effect
-  useEffect(() => {
+  /*useEffect(() => {
     const interval = setInterval(() => {
       if (!emojiExplosion) {
         addFloatingEmoji(false);
@@ -187,7 +186,7 @@ const EmojiAnimation = ({
     }, 1500); // More frequent
 
     return () => clearInterval(interval);
-  }, [emojiExplosion]);
+  }, [emojiExplosion]);*/
 
   return (
     <>
@@ -223,24 +222,6 @@ const EmojiAnimation = ({
             {item.emoji}
           </div>
         ))}
-      </div>
-
-      {/* Sound Controls */}
-      <div className="absolute top-4 right-24 z-30 flex gap-3">
-        <button
-          className={`p-2 rounded-full transition-all ${
-            soundEnabled ? "bg-purple-200" : "bg-gray-100"
-          }`}
-          onClick={toggleAmbientSound}
-        >
-          {soundEnabled ? "🔊" : "🔈"}
-        </button>
-        <button
-          className="p-2 rounded-full bg-purple-100 hover:bg-purple-200 transition-all"
-          onClick={triggerEmojiExplosion}
-        >
-          😄
-        </button>
       </div>
 
       <style jsx>{`

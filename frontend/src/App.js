@@ -16,6 +16,8 @@ import { AuthProvider } from './features/AuthContext/AuthContext.js';
 import AppWrapper from './features/AppWrapper';
 import MainLayout from './features/MainLayout'; // Import the new MainLayout component
 import { EmojiAnimationProvider } from './features/EmojiAnimationContext';
+import MoodAnalyticsPage from './features/Dashboard/MoodAnalytics/MoodAnalyticsPage.js';
+import AboutUs from './features/Home/AboutUs.js';
 
 function App() {
   return (
@@ -26,10 +28,12 @@ function App() {
             <BrowserRouter>
               <Routes>
                 {/* Public routes with header */}
+                <Route path="/about" element={<AboutUs />} />
                 <Route path="/" element={
                   <>
                     <Header />
                     <Home />
+                    
                   </>
                 } />
                 <Route path="/login" element={
@@ -57,7 +61,7 @@ function App() {
                   <Route path="/meditation" element={<Meditation />} />
                   <Route path="/exercise" element={<Exercise />} />
                   <Route path="/laughoutloud" element={<LaughOutLoud />} />
-                  <Route path="/profile" element={<UserProfile />} />
+                  <Route path="/mood-analytics" element={<MoodAnalyticsPage />} />
                   <Route path="/user-profile" element={<UserProfile />} />
                 </Route>
               </Routes>

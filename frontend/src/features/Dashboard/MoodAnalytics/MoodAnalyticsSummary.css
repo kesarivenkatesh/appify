@@ -1,0 +1,77 @@
+.mood-analytics-summary {
+    padding: 2rem;
+    background-color: #fdfdfd;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .period-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .period-toggle button {
+    padding: 0.5rem 1rem;
+    background: #eaeaea;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .period-toggle button:hover {
+    background: #d4d4d4;
+  }
+  
+  .period-toggle button.active {
+    background: #4CAF50;
+    color: white;
+  }
+  
+  .charts-container {
+    display: grid;
+    gap: 1rem;
+  }
+  
+  .chart-section {
+    background: white;
+    padding: 0.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+  
+  .chart-section h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.125rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #333;
+  }
+  
+  .loading,
+  .error,
+  .empty {
+    text-align: center;
+    padding: 3rem;
+    color: #555;
+  }
+  
+  .error {
+    color: #e53935;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .empty p {
+    margin-top: 0.75rem;
+    font-size: 1rem;
+    color: #777;
+  }
+  

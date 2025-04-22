@@ -206,27 +206,27 @@ const musicVideos = {
 // Category configuration for styling and icons
 const categoryConfig = {
   relaxing: { 
-    icon: <MusicIcon className="text-blue-500" />, 
+    icon: <MusicIcon className="category-icon text-blue-500" />, 
     title: 'Relaxing Music', 
     description: 'Calming melodies to reduce stress and anxiety' 
   },
   sleep: { 
-    icon: <Moon className="text-indigo-500" />, 
+    icon: <Moon className="category-icon text-indigo-500" />, 
     title: 'Sleep Music', 
     description: 'Gentle sounds to help you fall asleep' 
   },
   focus: { 
-    icon: <Brain className="text-amber-500" />, 
+    icon: <Brain className="category-icon text-amber-500" />, 
     title: 'Focus Music', 
     description: 'Enhance concentration and productivity' 
   },
   healing: { 
-    icon: <HeartPulse className="text-pink-500" />, 
+    icon: <HeartPulse className="category-icon text-pink-500" />, 
     title: 'Healing Music', 
     description: 'Therapeutic frequencies for mind and body' 
   },
   nature: { 
-    icon: <Sparkles className="text-green-500" />, 
+    icon: <Sparkles className="category-icon text-green-500" />, 
     title: 'Nature Sounds', 
     description: 'Natural ambience for relaxation' 
   }
@@ -244,21 +244,21 @@ const Music = () => {
           <p className="header-description">
             Experience the healing power of music with our carefully selected tracks. Choose from various categories to match your mood and needs.
           </p>
-        </section>
 
-        {/* Category Navigation */}
-        <div className="category-navigation">
-          {Object.keys(musicVideos).map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`category-button ${activeCategory === category ? 'active' : ''}`}
-            >
-              {categoryConfig[category].icon}
-              <span>{categoryConfig[category].title}</span>
-            </button>
-          ))}
-        </div>
+          {/* Category Navigation */}
+          <div className="category-navigation">
+            {Object.keys(musicVideos).map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`category-button ${activeCategory === category ? 'active' : ''}`}
+              >
+                {categoryConfig[category].icon}
+                <span>{categoryConfig[category].title}</span>
+              </button>
+            ))}
+          </div>
+        </section>
       </div>
 
       {/* Active Category Section */}
@@ -278,7 +278,9 @@ const Music = () => {
               <div className="video-details">
                 <h3>{video.title}</h3>
                 <p>{video.description}</p>
-                <span>{video.duration}</span>
+                <div className="video-meta">
+                  <span className="video-duration">{video.duration}</span>
+                </div>
               </div>
             </div>
           ))}

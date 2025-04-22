@@ -346,9 +346,18 @@ def delete_journal():
 
 # =========== MOOD TRACKING API ENDPOINTS ===========
 
-@app.route('/moods', methods=['POST'])
+@app.route('/moods', methods=['POST', 'OPTIONS'])
 def log_mood():
     """Log a new mood for the current user with intensity value"""
+    # Handle preflight OPTIONS request
+    if request.method == 'OPTIONS':
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3006")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response
+        
     if 'user' not in session:
         return jsonify({"error": "Not logged in"}), 403
     
@@ -356,6 +365,9 @@ def log_mood():
         mood_data = request.get_json()
         if not mood_data or 'mood' not in mood_data:
             return jsonify({"error": "Invalid mood data"}), 400
+        
+        # Print the received data for debugging
+        print("Received mood data:", mood_data)
         
         # Add username and timestamp if not provided
         mood_data['username'] = session['user']
@@ -384,50 +396,7 @@ def log_mood():
     except Exception as e:
         app.logger.error(f"Failed to log mood: {str(e)}")
         return jsonify({"error": f"Failed to log mood: {str(e)}"}), 500
-
-@app.route('/moods', methods=['GET'])
-def get_mood_history():
-    """Get mood history for the current user with optional filtering"""
-    if 'user' not in session:
-        return jsonify({"error": "Not logged in"}), 403
     
-    try:
-        username = session['user']
-        
-        # Optional date range filtering
-        start_date = request.args.get('start_date')
-        end_date = request.args.get('end_date')
-        # Get days parameter (default to 7 if start_date not provided)
-        days = int(request.args.get('days', 7))
-        
-        query = {"username": username}
-        
-        if start_date:
-            query["timestamp"] = {"$gte": datetime.datetime.fromisoformat(start_date)}
-        elif days:
-            start_date = datetime.datetime.now() - datetime.timedelta(days=days)
-            query["timestamp"] = {"$gte": start_date}
-        
-        if end_date:
-            if "timestamp" not in query:
-                query["timestamp"] = {}
-            query["timestamp"]["$lte"] = datetime.datetime.fromisoformat(end_date)
-        
-        # Get mood history, sorted by timestamp descending (newest first)
-        mood_history = list(moods_collection.find(query).sort("timestamp", -1))
-        
-        # Convert to JSON
-        mood_history = json.loads(json_util.dumps(mood_history))
-        
-        return jsonify({
-            "moods": mood_history,
-            "count": len(mood_history)
-        }), 200
-    
-    except Exception as e:
-        app.logger.error(f"Failed to retrieve mood history: {str(e)}")
-        return jsonify({"error": f"Failed to retrieve mood history: {str(e)}"}), 500
-
 @app.route('/moods/trend', methods=['GET'])
 def get_mood_trend():
     """Calculate and return the user's mood trend"""
@@ -1239,6 +1208,261 @@ def get_video_analytics():
     except Exception as e:
         app.logger.error(f"Error retrieving video analytics: {str(e)}")
         return jsonify({"error": f"Failed to retrieve video analytics: {str(e)}"}), 500
+    
+    # Add these new API endpoints to your Flask backend
+
+# Add a new route for mood distribution statistics
+@app.route('/moods/distribution', methods=['GET'])
+def get_mood_distribution():
+    """Get the distribution of moods over a time period"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        time_range = request.args.get('time_range', 'week')
+        
+        # Calculate date range based on time_range
+        now = datetime.datetime.now()
+        if time_range == 'week':
+            start_date = now - datetime.timedelta(days=7)
+        elif time_range == 'month':
+            start_date = now - datetime.timedelta(days=30)
+        elif time_range == 'year':
+            start_date = now - datetime.timedelta(days=365)
+        else:  # 'all'
+            start_date = datetime.datetime(2000, 1, 1)  # Far back in time
+        
+        # Query moods within the date range
+        moods = list(moods_collection.find({
+            "username": username,
+            "timestamp": {"$gte": start_date}
+        }))
+        
+        # Count occurrences of each mood
+        mood_counts = {}
+        for mood in moods:
+            mood_type = mood.get('mood')
+            if mood_type in mood_counts:
+                mood_counts[mood_type] += 1
+            else:
+                mood_counts[mood_type] = 1
+        
+        # Format the results
+        distribution = []
+        for mood, count in mood_counts.items():
+            distribution.append({
+                "mood": mood,
+                "count": count
+            })
+        
+        # Sort by count (descending)
+        distribution.sort(key=lambda x: x["count"], reverse=True)
+        
+        return jsonify({
+            "data": distribution,
+            "time_range": time_range,
+            "total": len(moods)
+        }), 200
+    
+    except Exception as e:
+        app.logger.error(f"Failed to get mood distribution: {str(e)}")
+        return jsonify({"error": f"Failed to get mood distribution: {str(e)}"}), 500
+
+# Add a new comprehensive mood analytics endpoint
+@app.route('/moods/analytics', methods=['GET'])
+def get_mood_analytics():
+    """Get comprehensive mood analytics for visualizations"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        time_range = request.args.get('time_range', 'month')
+        
+        # Calculate date range
+        now = datetime.datetime.now()
+        if time_range == 'week':
+            start_date = now - datetime.timedelta(days=7)
+        elif time_range == 'month':
+            start_date = now - datetime.timedelta(days=30)
+        elif time_range == 'year':
+            start_date = now - datetime.timedelta(days=365)
+        else:  # 'all'
+            start_date = datetime.datetime(2000, 1, 1)
+        
+        # Get all moods in date range
+        moods = list(moods_collection.find({
+            "username": username,
+            "timestamp": {"$gte": start_date}
+        }).sort("timestamp", 1))  # Sort by timestamp ascending
+        
+        # Format moods for response with proper date handling
+        formatted_moods = []
+        for mood in moods:
+            # Format the timestamp for consistent use in frontend
+            timestamp = mood.get('timestamp')
+            if timestamp:
+                # Format: YYYY-MM-DD
+                date_str = timestamp.strftime('%Y-%m-%d')
+                # Format: HH:MM:SS
+                time_str = timestamp.strftime('%H:%M:%S')
+            else:
+                date_str = 'Unknown'
+                time_str = 'Unknown'
+            
+            formatted_moods.append({
+                "id": str(mood.get('_id')),
+                "mood": mood.get('mood'),
+                "intensity": mood.get('intensity'),
+                "note": mood.get('note', ''),
+                "date": date_str,
+                "time": time_str,
+                "timestamp": timestamp.isoformat() if timestamp else None
+            })
+        
+        # Calculate mood summary statistics
+        mood_counts = {}
+        total_intensity = 0
+        intensity_values = []
+        
+        for mood in formatted_moods:
+            mood_type = mood.get('mood')
+            intensity = mood.get('intensity', 0)
+            
+            # Update mood counts
+            if mood_type in mood_counts:
+                mood_counts[mood_type] += 1
+            else:
+                mood_counts[mood_type] = 1
+            
+            # Update intensity stats
+            total_intensity += intensity
+            intensity_values.append(intensity)
+        
+        # Calculate most common mood
+        most_common_mood = max(mood_counts.items(), key=lambda x: x[1])[0] if mood_counts else 'neutral'
+        
+        # Calculate average intensity
+        avg_intensity = total_intensity / len(formatted_moods) if formatted_moods else 0
+        
+        # Calculate mood variability (standard deviation)
+        if len(intensity_values) > 1:
+            mean = sum(intensity_values) / len(intensity_values)
+            variance = sum((x - mean) ** 2 for x in intensity_values) / len(intensity_values)
+            std_dev = variance ** 0.5
+        else:
+            std_dev = 0
+        
+        # Determine variability level
+        if std_dev > 1.5:
+            variability = 'high'
+        elif std_dev > 0.7:
+            variability = 'medium'
+        else:
+            variability = 'low'
+        
+        # Determine mood trend (improving, worsening, or stable)
+        if len(formatted_moods) >= 3:
+            # Split moods into first and second half
+            half_point = len(formatted_moods) // 2
+            first_half = formatted_moods[:half_point]
+            second_half = formatted_moods[half_point:]
+            
+            # Calculate average intensity for each half
+            first_half_avg = sum(m.get('intensity', 0) for m in first_half) / len(first_half) if first_half else 0
+            second_half_avg = sum(m.get('intensity', 0) for m in second_half) / len(second_half) if second_half else 0
+            
+            # Determine trend
+            if second_half_avg - first_half_avg > 0.5:
+                trend = 'improving'
+            elif first_half_avg - second_half_avg > 0.5:
+                trend = 'worsening'
+            else:
+                trend = 'stable'
+        else:
+            trend = 'stable'
+        
+        # Format mood distribution
+        distribution = []
+        for mood_type, count in mood_counts.items():
+            distribution.append({
+                "mood": mood_type,
+                "count": count
+            })
+        
+        # Sort by count (descending)
+        distribution.sort(key=lambda x: x["count"], reverse=True)
+        
+        # Create mood calendar data (grouped by date)
+        calendar_data = {}
+        for mood in formatted_moods:
+            date = mood.get('date')
+            if date not in calendar_data:
+                calendar_data[date] = []
+            calendar_data[date].append(mood)
+        
+        # Final response
+        response = {
+            "moods": formatted_moods,
+            "summary": {
+                "mostCommonMood": most_common_mood,
+                "averageIntensity": round(avg_intensity, 2),
+                "variability": variability,
+                "trend": trend,
+                "totalEntries": len(formatted_moods)
+            },
+            "distribution": distribution,
+            "calendar": [{"date": date, "entries": entries} for date, entries in calendar_data.items()]
+        }
+        
+        return jsonify(response), 200
+    
+    except Exception as e:
+        app.logger.error(f"Failed to get mood analytics: {str(e)}")
+        return jsonify({"error": f"Failed to get mood analytics: {str(e)}"}), 500
+    
+    # Add this endpoint to your Flask app after the other moods endpoints
+@app.route('/moods', methods=['GET'])
+def get_moods():
+    """Get all mood entries for the current user"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        
+        # Optional time_range query parameter
+        time_range = request.args.get('time_range', 'all')
+        
+        # Calculate date range based on time_range
+        now = datetime.datetime.now()
+        if time_range == 'week':
+            start_date = now - datetime.timedelta(days=7)
+        elif time_range == 'month':
+            start_date = now - datetime.timedelta(days=30)
+        elif time_range == 'year':
+            start_date = now - datetime.timedelta(days=365)
+        else:  # 'all'
+            start_date = datetime.datetime(2000, 1, 1)  # Far back in time
+        
+        # Query for moods in the date range
+        query = {
+            "username": username,
+            "timestamp": {"$gte": start_date}
+        }
+        
+        # Get all moods sorted by timestamp (newest first)
+        moods = list(moods_collection.find(query).sort("timestamp", -1))
+        
+        # Convert MongoDB objects to JSON
+        moods_json = json.loads(json_util.dumps(moods))
+        
+        return jsonify(moods_json), 200
+    
+    except Exception as e:
+        app.logger.error(f"Failed to retrieve moods: {str(e)}")
+        return jsonify({"error": f"Failed to retrieve moods: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
