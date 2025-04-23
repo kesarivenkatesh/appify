@@ -3,7 +3,7 @@ import axios from 'axios';
 class AnalyticsService {
   constructor() {
     this.axiosInstance = axios.create({
-      baseURL: 'http://localhost:8000',
+      baseURL: 'http://happify.kentcs.org:8000',
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json',

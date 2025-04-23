@@ -1,12 +1,20 @@
 import axios from 'axios';
 
 class MoodService {
-  
+  constructor() {
+    this.axiosInstance = axios.create({
+      baseURL: 'http://happify.kentcs.org:8000',
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
   
   // Log a new mood
   async logMood(moodData) {
     try {
-      const response = await axios.post('/moods', moodData);
+      const response = await this.axiosInstance.post('/moods', moodData);
       return response.data;
     } catch (error) {
       console.error('Error logging mood:', error);
@@ -17,7 +25,7 @@ class MoodService {
   // Get mood trend data
   async getMoodTrend() {
     try {
-      const response = await axios.get('/moods/trend');
+      const response = await this.axiosInstance.get('/moods/trend');
       return response.data;
     } catch (error) {
       console.error('Error getting mood trend:', error);
@@ -28,7 +36,7 @@ class MoodService {
   // Get the last logged mood
   async getLastMood() {
     try {
-      const response = await axios.get('/moods/last');
+      const response = await this.axiosInstance.get('/moods/last');
       return response.data;
     } catch (error) {
       console.error('Error getting last mood:', error);
@@ -39,7 +47,7 @@ class MoodService {
   // Get all moods with optional time range
   async getMoods(timeRange = 'all') {
     try {
-      const response = await axios.get(`/moods?time_range=${timeRange}`);
+      const response = await this.axiosInstance.get(`/moods?time_range=${timeRange}`);
       // Check if the response is valid and has data
       if (response && response.data) {
         // Ensure timestamps are properly formatted
@@ -55,7 +63,7 @@ class MoodService {
   // Get comprehensive mood analytics
   async getMoodAnalytics(timeRange = 'month') {
     try {
-      const response = await axios.get(`/moods/analytics?time_range=${timeRange}`);
+      const response = await this.axiosInstance.get(`/moods/analytics?time_range=${timeRange}`);
       if (response && response.data) {
         // Format moods data if present
         if (response.data.moods) {
@@ -73,7 +81,7 @@ class MoodService {
   // Get mood distribution
   async getMoodDistribution(timeRange = 'month') {
     try {
-      const response = await axios.get(`/moods/distribution?time_range=${timeRange}`);
+      const response = await this.axiosInstance.get(`/moods/distribution?time_range=${timeRange}`);
       return response.data;
     } catch (error) {
       console.error('Error getting mood distribution:', error);
@@ -84,7 +92,7 @@ class MoodService {
   // Get user streak data
   async getUserStreak() {
     try {
-      const response = await axios.get('/user/streak');
+      const response = await this.axiosInstance.get('/user/streak');
       return response.data;
     } catch (error) {
       console.error('Error getting user streak:', error);
@@ -95,7 +103,7 @@ class MoodService {
   // Get dashboard stats
   async getDashboardStats() {
     try {
-      const response = await axios.get('/user/dashboard-stats');
+      const response = await this.axiosInstance.get('/user/dashboard-stats');
       return response.data;
     } catch (error) {
       console.error('Error getting dashboard stats:', error);
@@ -107,7 +115,7 @@ class MoodService {
   async extractMoodsFromJournals(timeRange = 'month') {
     try {
       // First, get all journal entries
-      const journalResponse = await axios.get('/journal');
+      const journalResponse = await this.axiosInstance.get('/journal');
       const allJournals = journalResponse.data || [];
       
       // Calculate date range based on timeRange

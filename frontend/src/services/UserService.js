@@ -5,12 +5,19 @@ function utf8_to_b64(str) {
 }
 
 class UserService {
+  constructor() {
+    this.axiosInstance = axios.create({
+      baseURL: 'http://happify.kentcs.org:8000',
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
     
   async getCurrentUser() {
     try {
-      const response = await axios.get('/api/current-user', {
-        withCredentials: true  // Crucial for sending cookies
-      });
+      const response = await this.axiosInstance.get('/api/current-user');
       return response.data;
     } catch (error) {
       console.error('Error fetching user:', error);
@@ -20,16 +27,11 @@ class UserService {
 
   async register(userData) {
     try {
-      const response = await axios.post('/register', {
+      const response = await this.axiosInstance.post('/register', {
         username: userData.username,
         email: userData.email,
         password: userData.password,
         confirm_password: userData.confirmPassword // Match backend field name
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          
-        }
       });
       
       return response.data;
@@ -41,7 +43,7 @@ class UserService {
 
     async login(username, password) {
       try {
-        const response = await axios.get("/login",{
+        const response = await this.axiosInstance.get("/login",{
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Basic '+utf8_to_b64(username+":"+password)
@@ -65,7 +67,7 @@ class UserService {
 
     async logout() {
       try {
-        const response = await axios.get("/logout");
+        const response = await this.axiosInstance.get("/logout");
         return response;
       } catch(error) {
         console.error(error);

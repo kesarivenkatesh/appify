@@ -3,7 +3,15 @@
 import axios from 'axios';
 
 class DashboardService {
-  
+  constructor() {
+    this.axiosInstance = axios.create({
+      baseURL: 'http://happify.kentcs.org:8000',
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
 
   /**
    * Get dashboard statistics for the current user
@@ -11,7 +19,7 @@ class DashboardService {
    */
   async getDashboardStats() {
     try {
-      const response = await axios.get('/user/dashboard-stats');
+      const response = await this.axiosInstance.get('/user/dashboard-stats');
       return response.data;
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
@@ -35,7 +43,7 @@ class DashboardService {
    */
   async getUserStreak() {
     try {
-      const response = await axios.get('/user/streak');
+      const response = await this.axiosInstance.get('/user/streak');
       return response.data;
     } catch (error) {
       console.error('Error fetching user streak:', error);
@@ -49,7 +57,7 @@ class DashboardService {
    */
   async getLastActivity() {
     try {
-      const response = await axios.get('/user/last-activity');
+      const response = await this.axiosInstance.get('/user/last-activity');
       return response.data;
     } catch (error) {
       console.error('Error fetching last activity:', error);
@@ -67,7 +75,7 @@ class DashboardService {
    */
   async getVideoAnalytics() {
     try {
-      const response = await axios.get('/user/video-analytics');
+      const response = await this.axiosInstance.get('/user/video-analytics');
       return response.data;
     } catch (error) {
       console.error('Error fetching video analytics:', error);
@@ -87,7 +95,7 @@ class DashboardService {
    */
   async getActivityHistory(limit = 20) {
     try {
-      const response = await axios.get('/user/activity-history', {
+      const response = await this.axiosInstance.get('/user/activity-history', {
         params: { limit }
       });
       return response.data;

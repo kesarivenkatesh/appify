@@ -1,13 +1,22 @@
 import axios from 'axios';
 
 class VideoService {
+  constructor() {
+    this.axiosInstance = axios.create({
+      baseURL: 'http://happify.kentcs.org:8000',
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
   /** 
    * Video service for retrieving video recommendations based on mood
    */
 
   async getRecommendedVideos(mood) {
     try {
-      const response = await axios.get(`/videos/recommendations`, {
+      const response = await this.axiosInstance.get(`/videos/recommendations`, {
         params: { mood },
         headers: {
           'Content-Type': 'application/json'
@@ -22,7 +31,7 @@ class VideoService {
 
   async getVideosByMood(mood) {
     try {
-      const response = await axios.get(`/videos/by-mood/${mood}`, {
+      const response = await this.axiosInstance.get(`/videos/by-mood/${mood}`, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -36,7 +45,7 @@ class VideoService {
 
   async getPopularVideos(limit = 6) {
     try {
-      const response = await axios.get(`/videos/popular`, {
+      const response = await this.axiosInstance.get(`/videos/popular`, {
         params: { limit },
         headers: {
           'Content-Type': 'application/json'
@@ -58,7 +67,7 @@ class VideoService {
         ...extraData
       };
       
-      const response = await axios.post(`/videos/interaction`, payload, {
+      const response = await this.axiosInstance.post(`/videos/interaction`, payload, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -76,7 +85,7 @@ class VideoService {
    */
    async getWatchedVideos(limit = 10) {
     try {
-      const response = await axios.get('/user/watched-videos', {
+      const response = await this.axiosInstance.get('/user/watched-videos', {
         params: { limit }
       });
       return response.data || [];

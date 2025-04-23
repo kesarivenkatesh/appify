@@ -1,6 +1,15 @@
 import axios from 'axios';
 
 class JournalService {
+  constructor() {
+    this.axiosInstance = axios.create({
+      baseURL: 'http://happify.kentcs.org:8000',
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
   /**
    * Fetch journal entries with optional time range filtering
    * This method correctly processes the response from your backend API
@@ -8,12 +17,7 @@ class JournalService {
   async getJournalEntries(params = {}) {
     try {
       // Get all journal entries
-      const response = await axios.get("/journal", {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        withCredentials: true
-      });
+      const response = await this.axiosInstance.get("/journal");
 
       // Get entries from response
       let entries = response.data || [];
@@ -127,9 +131,7 @@ class JournalService {
   // Rest of your existing methods
   async getJournalCount() {
     try {
-      const response = await axios.get('/journal/count', {
-        withCredentials: true
-      });
+      const response = await this.axiosInstance.get('/journal/count');
       return response.data.count;
     } catch (error) {
       console.error('Error fetching user journals count:', error);
@@ -139,12 +141,7 @@ class JournalService {
   
   async create(journalDetails) {
     try {
-      const response = await axios.post("/journal", journalDetails, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        withCredentials: true
-      });
+      const response = await this.axiosInstance.post("/journal", journalDetails);
       return response;
     } catch(error) {
       console.error("Journal create error: ", error);
@@ -154,12 +151,7 @@ class JournalService {
   
   async read() {
     try {
-      const response = await axios.get("/journal", {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        withCredentials: true
-      });
+      const response = await this.axiosInstance.get("/journal");
       return response;
     } catch(error) {
       console.error("Journal read error: ", error);
@@ -169,12 +161,7 @@ class JournalService {
   
   async update(journalDetails) {
     try {
-      const response = await axios.put("/journal", journalDetails, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        withCredentials: true
-      });
+      const response = await this.axiosInstance.put("/journal", journalDetails);
       return response;
     } catch(error) {
       console.error("Journal update error: ", error);
@@ -185,7 +172,7 @@ class JournalService {
   async delete(journalDetails) {
     try {
       const body = {"_id": journalDetails._id};
-      const response = await axios.delete("/journal", {
+      const response = await this.axiosInstance.delete("/journal", {
         headers: {
           'Content-Type': 'application/json'
         },

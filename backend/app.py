@@ -15,8 +15,8 @@ from collections import Counter
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
 app.config["SESSION_COOKIE_HTTPONLY"] = True
-app.config["SESSION_COOKIE_SECURE"] = True  # In production
-CORS(app, resources={r"/*": {"origins": "http://localhost:3006"}})
+app.config["SESSION_COOKIE_SECURE"] = False  # In production
+CORS(app, resources={r"/*": {"origins": "http://happify.kentcs.org:8805", "supports_credentials": True}})
 
 load_dotenv()
 connection = MongoClient(os.getenv("CONNECTION_STRING"))
@@ -242,7 +242,7 @@ def get_user():
             record_activity(username, 'login')
             
             response = make_response(jsonify({"message": "Login successful"}), 200)
-            response.set_cookie('valid', 'true', httponly=False)
+            response.set_cookie(key='valid', value='true', httponly=False, domain="happify.kentcs.org", path="/")
             return response
         else:
             return jsonify({"error": "Invalid credentials"}), 401
@@ -256,8 +256,8 @@ def logout():
         record_activity(session['user'], 'logout')
     
     response = make_response(jsonify({"message": "Logout successful"}), 200)
+    response.delete_cookie(key='valid', domain="happify.kentcs.org", path="/")
     session.clear()
-    response.delete_cookie('valid')
     return response
 
 # Journal endpoints
@@ -352,7 +352,7 @@ def log_mood():
     # Handle preflight OPTIONS request
     if request.method == 'OPTIONS':
         response = make_response()
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3006")
+        response.headers.add("Access-Control-Allow-Origin", "http://happify.kentcs.org:8805")
         response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
         response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
         response.headers.add("Access-Control-Allow-Credentials", "true")
@@ -738,7 +738,6 @@ def get_video_recommendations():
         return jsonify({'error': 'Could not retrieve video recommendations'}), 500
 
 @app.route('/videos/interaction', methods=['POST'])
-
 def log_video_interaction():
     """Log user interaction with videos to improve recommendations"""
     if 'user' not in session:
@@ -1421,8 +1420,8 @@ def get_mood_analytics():
     except Exception as e:
         app.logger.error(f"Failed to get mood analytics: {str(e)}")
         return jsonify({"error": f"Failed to get mood analytics: {str(e)}"}), 500
-    
-    # Add this endpoint to your Flask app after the other moods endpoints
+
+# Add this endpoint to your Flask app after the other moods endpoints
 @app.route('/moods', methods=['GET'])
 def get_moods():
     """Get all mood entries for the current user"""
