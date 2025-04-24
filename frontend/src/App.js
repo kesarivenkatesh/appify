@@ -33,7 +33,6 @@ function App() {
                   <>
                     <Header />
                     <Home />
-                    
                   </>
                 } />
                 <Route path="/login" element={
