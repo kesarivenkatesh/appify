@@ -15,8 +15,31 @@ jobs:
         install -m 600 -D /dev/null ~/.ssh/id_rsa
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+    
     - name: connect and pull
       run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git checkout ${{ secrets.MAIN_BRANCH }} && git pull && exit"
+    
+    - name: Stop Backend
+      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "screen -S backend -X quit || true"
+
+    - name: Start Backend
+      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+        cd ~/web/prod/appify/backend/ &&
+        source .venv/bin/activate &&
+        screen -dmS backend flask run --port 8000 --host 0.0.0.0
+        "
+
+    - name: Stop Frontend
+      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "screen -S frontend -X quit || true"
+
+    - name: Start Frontend
+      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+        cd ~/web/prod/appify/frontend/ && 
+        npm install && 
+        npm run build &&
+        screen -dmS frontend npm start
+        "
+    
     - name: cleanup
       run: |
         rm ~/.ssh/id_rsa
