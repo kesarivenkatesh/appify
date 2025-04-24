@@ -129,7 +129,7 @@ function Login() {
                 </form>
 
                 <div className="login-link">
-                    Don't have an account? <button onClick={redirectToRegister}>Register here</button>
+                    Do not have an account? <button onClick={redirectToRegister}>Register here</button>
                 </div>
             </div>
         </div>
