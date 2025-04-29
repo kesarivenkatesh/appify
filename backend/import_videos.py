@@ -23,12 +23,12 @@ videos_collection = db["videos"]
 sample_videos = [
     # Happy/Positive Mood Videos
     {
-        "title": "5-Minute Dance Party to Boost Your Mood",
-        "description": "A quick dance workout that will instantly lift your spirits and energy levels.",
-        "youtube_id": "UfcAVejslrU",
+        "title": "4 Minutes To Start Your Day Right! MORNING MOTIVATION and Positivity!",
+        "description": "4 Minutes to start your day right with some good Morning Motivation and Positivity.",
+        "youtube_id": "HgiiY9TLtX8",
         "thumbnail": "https://img.youtube.com/vi/UfcAVejslrU/hqdefault.jpg",
-        "duration": "5:30",
-        "categories": ["motivation", "comedy", "dance", "energy"],
+        "duration": "4:44",
+        "categories": ["motivation", "comedy", "positive", "energy"],
         "tags": ["quick", "beginner", "fun"],
         "mood_tags": ["happy", "energetic", "excited"],
         "view_count": 2845,
@@ -38,16 +38,16 @@ sample_videos = [
         "published_date": datetime.datetime.now(),
         "active": True,
         "creator": {
-            "name": "Happy Moves",
-            "channel_id": "UC123456789"
+            "name": "",
+            "channel_id": ""
         }
     },
     {
-        "title": "The Science of Happiness - Quick Summary",
-        "description": "Learn about the research behind happiness and practical ways to increase your joy.",
-        "youtube_id": "GXy__kBVq1M",
-        "thumbnail": "https://img.youtube.com/vi/GXy__kBVq1M/hqdefault.jpg",
-        "duration": "8:45",
+        "title": "Motivational Advice for Positivity",
+        "description": "Morning Motivational Speech For Positivity That will make you Speechless",
+        "youtube_id": "vCIu7Ja_TE0",
+        "thumbnail": "https://img.youtube.com/vi/vCIu7Ja_TE0/hqdefault.jpg",
+        "duration": "20:48",
         "categories": ["inspiration", "educational", "wellbeing", "motivation"],
         "tags": ["science", "psychology", "tips"],
         "mood_tags": ["happy", "content", "neutral"],
@@ -63,11 +63,11 @@ sample_videos = [
         }
     },
     {
-        "title": "3 Gratitude Practices That Take Just 2 Minutes",
-        "description": "Simple gratitude exercises that you can do anywhere to boost your mood and outlook.",
-        "youtube_id": "WzRazFcu4Ms",
-        "thumbnail": "https://img.youtube.com/vi/WzRazFcu4Ms/hqdefault.jpg",
-        "duration": "6:20",
+        "title": "How to Learn Anything Fast ",
+        "description": "A detailed video on how to learn anything fast and practice well",
+        "youtube_id": "ZVO8Wt_PCgE",
+        "thumbnail": "https://img.youtube.com/vi/ZVO8Wt_PCgE/hqdefault.jpg",
+        "duration": "19:09 ",
         "categories": ["inspiration", "motivation", "wellbeing", "mindfulness"],
         "tags": ["gratitude", "quick", "daily"],
         "mood_tags": ["happy", "content", "excited"],
@@ -85,11 +85,11 @@ sample_videos = [
     
     # Sad/Down Mood Videos
     {
-        "title": "Gentle Yoga for Emotional Healing",
-        "description": "A compassionate yoga sequence designed to help process difficult emotions.",
-        "youtube_id": "Nw2oBIrQGLo",
+        "title": "Mental Healing and Relieves Sadness",
+        "description": "A video to watch when you are sad",
+        "youtube_id": "hBzP8MtJf04",
         "thumbnail": "https://img.youtube.com/vi/Nw2oBIrQGLo/hqdefault.jpg",
-        "duration": "15:30",
+        "duration": "3:14",
         "categories": ["uplift", "comfort", "mindfulness", "yoga"],
         "tags": ["gentle", "healing", "emotions"],
         "mood_tags": ["sad", "tired"],
@@ -125,11 +125,11 @@ sample_videos = [
         }
     },
     {
-        "title": "Understanding Your Emotions - A Guide",
-        "description": "Learn how to recognize, accept and process difficult emotions in a healthy way.",
-        "youtube_id": "tEmt1Znux58",
-        "thumbnail": "https://img.youtube.com/vi/tEmt1Znux58/hqdefault.jpg",
-        "duration": "12:15",
+        "title": "The Mindset That Changed Life Immediately",
+        "description": "A video that can change the mindset and life in a easy way",
+        "youtube_id": "Vp-TVkqaCrQ",
+        "thumbnail": "https://img.youtube.com/vi/Vp-TVkqaCrQ/hqdefault.jpg",
+        "duration": "3:41",
         "categories": ["uplift", "educational", "mindfulness", "self-care"],
         "tags": ["emotions", "psychology", "healing"],
         "mood_tags": ["sad"],
@@ -147,11 +147,11 @@ sample_videos = [
     
     # Tired/Low Energy Mood Videos
     {
-        "title": "5-Minute Energy Boost Meditation",
-        "description": "A quick meditation to restore your energy and focus when you're feeling tired.",
-        "youtube_id": "inpok4MKVLM",
-        "thumbnail": "https://img.youtube.com/vi/inpok4MKVLM/hqdefault.jpg",
-        "duration": "5:45",
+        "title": "A video to relieve your tiredness",
+        "description": "A quick video to restore your energy and focus when you're feeling tired.",
+        "youtube_id": "3tDlK9ylS2w",
+        "thumbnail": "https://img.youtube.com/vi/3tDlK9ylS2w/hqdefault.jpg",
+        "duration": "1:26",
         "categories": ["meditation", "energy", "mindfulness", "relaxation"],
         "tags": ["quick", "energizing", "focus"],
         "mood_tags": ["tired", "neutral"],
@@ -229,11 +229,11 @@ sample_videos = [
         }
     },
     {
-        "title": "Gentle Yoga for Stress Release",
-        "description": "A slow, mindful yoga practice to release tension and calm your nervous system.",
-        "youtube_id": "Jpps6345HDM",
-        "thumbnail": "https://img.youtube.com/vi/Jpps6345HDM/hqdefault.jpg",
-        "duration": "18:30",
+        "title": "How to calm your Anxiety",
+        "description": "A Video on How to calm your anxiety and stress",
+        "youtube_id": "FpiWSFcL3-c",
+        "thumbnail": "https://img.youtube.com/vi/FpiWSFcL3-c/hqdefault.jpg",
+        "duration": "7:19",
         "categories": ["yoga", "relaxation", "mindfulness", "calming"],
         "tags": ["stress", "gentle", "tension"],
         "mood_tags": ["anxious", "tired"],
@@ -251,9 +251,9 @@ sample_videos = [
     {
         "title": "3-Minute Grounding Exercise for Anxiety",
         "description": "A quick and effective grounding technique to bring you back to the present moment.",
-        "youtube_id": "MHvsKxjvyWU",
-        "thumbnail": "https://img.youtube.com/vi/MHvsKxjvyWU/hqdefault.jpg",
-        "duration": "3:45",
+        "youtube_id": "1FL3afr0dO4",
+        "thumbnail": "https://img.youtube.com/vi/1FL3afr0dO4/hqdefault.jpg",
+        "duration": "30:00",
         "categories": ["mindfulness", "calming", "self-care", "relaxation"],
         "tags": ["anxiety", "grounding", "quick"],
         "mood_tags": ["anxious"],
@@ -273,9 +273,9 @@ sample_videos = [
     {
         "title": "5-Minute Anger Management Techniques",
         "description": "Quick and effective techniques to manage anger and regain emotional control.",
-        "youtube_id": "s4dMCkoqj8A",
+        "youtube_id": "Po4O-2Tk_o",
         "thumbnail": "https://img.youtube.com/vi/s4dMCkoqj8A/hqdefault.jpg",
-        "duration": "5:15",
+        "duration": "32:00",
         "categories": ["mindfulness", "calming", "self-care", "emotional-control"],
         "tags": ["anger", "management", "quick"],
         "mood_tags": ["angry"],
@@ -293,7 +293,7 @@ sample_videos = [
     {
         "title": "Calming Visualization for Releasing Anger",
         "description": "A guided visualization to help you release anger and find emotional peace.",
-        "youtube_id": "CL6xyBeBHOw",
+        "youtube_id": "bqJs2-GYM-A",
         "thumbnail": "https://img.youtube.com/vi/CL6xyBeBHOw/hqdefault.jpg",
         "duration": "10:20",
         "categories": ["meditation", "visualization", "calming", "emotional-release"],
@@ -315,9 +315,9 @@ sample_videos = [
     {
         "title": "Sunset Beach Meditation",
         "description": "A peaceful meditation set to the sounds of gentle waves at sunset.",
-        "youtube_id": "8GV9v7jnMcE",
+        "youtube_id": "sYECVezDnso",
         "thumbnail": "https://img.youtube.com/vi/8GV9v7jnMcE/hqdefault.jpg",
-        "duration": "12:20",
+        "duration": "20:06",
         "categories": ["meditation", "nature", "calming", "relaxation"],
         "tags": ["beach", "sunset", "waves"],
         "mood_tags": ["content", "neutral"],
@@ -335,9 +335,9 @@ sample_videos = [
     {
         "title": "Mindful Walking Practice in Nature",
         "description": "Learn how to practice mindfulness while walking in natural surroundings.",
-        "youtube_id": "HRuqe26F8SU",
-        "thumbnail": "https://img.youtube.com/vi/HRuqe26F8SU/hqdefault.jpg",
-        "duration": "8:50",
+        "youtube_id": "0nwqqOCtGEU",
+        "thumbnail": "https://img.youtube.com/vi/0nwqqOCtGEU/hqdefault.jpg",
+        "duration": "12:37",
         "categories": ["mindfulness", "nature", "wellbeing", "self-care"],
         "tags": ["walking", "mindfulness", "nature"],
         "mood_tags": ["content", "neutral", "happy"],
