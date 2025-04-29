@@ -229,8 +229,6 @@ const AboutUs = () => {
         </div>
       </section>
       
-      //{/* Team Section */}
-      
       
       {/* Values Section */}
       <section className="relative z-20 py-12 px-4">

@@ -269,10 +269,8 @@ const Meditation = () => {
       <section className="category-content">
         <div className="category-header">
           {categoryConfig[activeCategory].icon}
-          <div>
-            <h2 className="category-title">{categoryConfig[activeCategory].title}</h2>
-            <p className="category-description">{categoryConfig[activeCategory].description}</p>
-          </div>
+          <p className="category-description">{categoryConfig[activeCategory].description}</p>
+          
         </div>
 
         <div className="video-grid">

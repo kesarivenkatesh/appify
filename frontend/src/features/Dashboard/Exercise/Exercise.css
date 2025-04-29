@@ -35,7 +35,7 @@
   
   /* Sticky Header and Navigation */
   .exercise-sticky-header {
-    position: sticky;
+    position:relative;
     top: 0;
     z-index: 10;
     background-color: #ffffff;
@@ -107,7 +107,7 @@
   }
   
   .category-description {
-    font-size: 1.1rem;
+    font-size: 1.0rem;
     color: #666;
     margin-bottom: 0;
   }
@@ -219,4 +219,14 @@
   
   .Exercise.text-teal-500 {
     color: #009688;
+  }
+  @media (max-width: 480px) {
+    .card {
+      padding: 1.5rem;
+      margin: 0 1rem;
+    }
+    
+    input {
+      padding: 0.7rem;
+    }
   }

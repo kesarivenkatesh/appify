@@ -35,7 +35,7 @@
 
 /* Sticky Header and Navigation */
 .music-sticky-header {
-  position: sticky;
+  position: relative;
   top: 0;
   z-index: 10;
   background-color: #ffffff;
@@ -107,7 +107,7 @@
 }
 
 .category-description {
-  font-size: 1.1rem;
+  font-size: 1.0rem;
   color: #666;
   margin-bottom: 0;
 }

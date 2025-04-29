@@ -161,10 +161,8 @@ const Exercise = () => {
       <section className="category-content">
         <div className="category-header">
           {categoryConfig[selectedCategory].icon}
-          <div>
-            <h2 className="category-title">{categoryConfig[selectedCategory].title}</h2>
             <p className="category-description">{categoryConfig[selectedCategory].description}</p>
-          </div>
+         
         </div>
 
         {/* Video Grid */}

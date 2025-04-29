@@ -37,7 +37,7 @@
   /* Sticky Header and Navigation */
 /* Optional: Make the whole header sticky if needed */
 .meditation-sticky-header {
-    position: sticky;
+    position: relative;
     top: 0;
     z-index: 10;
     background-color: #ffffff;
@@ -99,16 +99,17 @@
   }
   
   .category-title {
-    font-size: 2.2rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: #6a1b9a; /* rich purple */
     margin-bottom: 4px;
   }
   
   .category-description {
-    font-size: 1.1rem;
+    font-size: 1.0rem;
     color: #666;
     margin-bottom: 24px;
+    
   }
   
   
@@ -170,4 +171,13 @@
     @apply text-teal-500;
   }
   
- 
+  @media (max-width: 480px) {
+    .card {
+      padding: 1.5rem;
+      margin: 0 1rem;
+    }
+    
+    input {
+      padding: 0.7rem;
+    }
+  }

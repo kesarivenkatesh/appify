@@ -179,10 +179,8 @@ const Motivation = () => {
       <section className="category-content">
         <div className="category-header">
           {categoryConfig[activeCategory].icon}
-          <div>
-            <h2 className="category-title">{categoryConfig[activeCategory].title}</h2>
             <p className="category-description">{categoryConfig[activeCategory].description}</p>
-          </div>
+          
         </div>
 
         <div className="video-grid">
