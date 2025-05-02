@@ -1,10 +1,3 @@
-"""
-YouTube Video Import Script for MongoDB
-
-This script imports sample YouTube videos into MongoDB for the mental health app.
-Each video is tagged with categories and mood tags to enable mood-based recommendations.
-"""
-
 import datetime
 import pymongo
 import os
@@ -43,11 +36,11 @@ sample_videos = [
         }
     },
     {
-        "title": "Motivational Advice for Positivity",
-        "description": "Morning Motivational Speech For Positivity That will make you Speechless",
-        "youtube_id": "vCIu7Ja_TE0",
-        "thumbnail": "https://img.youtube.com/vi/vCIu7Ja_TE0/hqdefault.jpg",
-        "duration": "20:48",
+        "title": "Happiness",
+        "description": "Happiness",        
+        "youtube_id": "e9dZQelULDk",
+        "thumbnail": "https://img.youtube.com/vi/e9dZQelULDk/hqdefault.jpg",
+        "duration": "4:16",
         "categories": ["inspiration", "educational", "wellbeing", "motivation"],
         "tags": ["science", "psychology", "tips"],
         "mood_tags": ["happy", "content", "neutral"],
@@ -63,11 +56,11 @@ sample_videos = [
         }
     },
     {
-        "title": "How to Learn Anything Fast ",
-        "description": "A detailed video on how to learn anything fast and practice well",
-        "youtube_id": "ZVO8Wt_PCgE",
-        "thumbnail": "https://img.youtube.com/vi/ZVO8Wt_PCgE/hqdefault.jpg",
-        "duration": "19:09 ",
+        "title": "THE CHOICE (Short Animated Movie)",
+        "description": "This is a short animated film, about how your small everyday life choices can ultimately shape your life",
+        "youtube_id": "_HEnohs6yYw",
+        "thumbnail": "https://img.youtube.com/vi/_HEnohs6yYw/hqdefault.jpg",
+        "duration": "3:28 ",
         "categories": ["inspiration", "motivation", "wellbeing", "mindfulness"],
         "tags": ["gratitude", "quick", "daily"],
         "mood_tags": ["happy", "content", "excited"],
@@ -85,11 +78,11 @@ sample_videos = [
     
     # Sad/Down Mood Videos
     {
-        "title": "Mental Healing and Relieves Sadness",
-        "description": "A video to watch when you are sad",
-        "youtube_id": "hBzP8MtJf04",
-        "thumbnail": "https://img.youtube.com/vi/Nw2oBIrQGLo/hqdefault.jpg",
-        "duration": "3:14",
+        "title": "Overcomer Animated Short",
+        "description": "Overcomer Animated Short",
+        "youtube_id": "V6ui161NyTg",
+        "thumbnail": "https://img.youtube.com/vi/V6ui161NyTg/hqdefault.jpg",
+        "duration": "5:56",
         "categories": ["uplift", "comfort", "mindfulness", "yoga"],
         "tags": ["gentle", "healing", "emotions"],
         "mood_tags": ["sad", "tired"],
@@ -105,11 +98,11 @@ sample_videos = [
         }
     },
     {
-        "title": "Nature Sounds - Peaceful Forest Stream",
-        "description": "Immerse yourself in the calming sounds of a forest stream to ease your mind.",
-        "youtube_id": "qRKhxMGO1iE",
-        "thumbnail": "https://img.youtube.com/vi/qRKhxMGO1iE/hqdefault.jpg",
-        "duration": "20:00",
+        "title": "Who are you?",
+        "description": "This is the story of a writer who, after having great success with his first book" ,         
+        "youtube_id": "GWGbOjlJDkU",
+        "thumbnail": "https://img.youtube.com/vi/GWGbOjlJDkU/hqdefault.jpg",
+        "duration": "13:28",
         "categories": ["nature", "relaxation", "calming", "comfort"],
         "tags": ["nature", "sounds", "meditation"],
         "mood_tags": ["sad", "anxious", "tired"],
@@ -124,9 +117,10 @@ sample_videos = [
             "channel_id": "UC123456793"
         }
     },
+    
     {
         "title": "The Mindset That Changed Life Immediately",
-        "description": "A video that can change the mindset and life in a easy way",
+        "description": "A video that can easily change the mindset and life",
         "youtube_id": "Vp-TVkqaCrQ",
         "thumbnail": "https://img.youtube.com/vi/Vp-TVkqaCrQ/hqdefault.jpg",
         "duration": "3:41",
@@ -143,15 +137,17 @@ sample_videos = [
             "name": "Emotional Wellness",
             "channel_id": "UC123456794"
         }
+             
+
     },
     
     # Tired/Low Energy Mood Videos
     {
-        "title": "A video to relieve your tiredness",
-        "description": "A quick video to restore your energy and focus when you're feeling tired.",
+        "title": "Feeling Tired",
+        "description": "feeling tired quotes",
         "youtube_id": "3tDlK9ylS2w",
         "thumbnail": "https://img.youtube.com/vi/3tDlK9ylS2w/hqdefault.jpg",
-        "duration": "1:26",
+        "duration": "10",
         "categories": ["meditation", "energy", "mindfulness", "relaxation"],
         "tags": ["quick", "energizing", "focus"],
         "mood_tags": ["tired", "neutral"],
@@ -166,12 +162,13 @@ sample_videos = [
             "channel_id": "UC123456795"
         }
     },
+    
     {
-        "title": "Gentle Morning Stretch Routine",
-        "description": "Wake up your body and mind with this gentle morning stretch sequence.",
-        "youtube_id": "BBAyRBTfsOU",
-        "thumbnail": "https://img.youtube.com/vi/BBAyRBTfsOU/hqdefault.jpg",
-        "duration": "8:30",
+        "title": "The 5 Types of Tiredness",
+        "description": "The 5 Types of Tiredness",
+        "youtube_id": "foWbC4m9Do0",
+        "thumbnail": "https://img.youtube.com/vi/foWbC4m9Do0/hqdefault.jpg",
+        "duration": "4:33",
         "categories": ["workout", "relaxation", "energy", "self-care"],
         "tags": ["morning", "stretch", "gentle"],
         "mood_tags": ["tired", "energetic"],
@@ -187,11 +184,11 @@ sample_videos = [
         }
     },
     {
-        "title": "Sleep Meditation - Deep Relaxation",
-        "description": "A calming meditation to help you fall into a deep, rejuvenating sleep.",
-        "youtube_id": "N4qabPO9X5o",
-        "thumbnail": "https://img.youtube.com/vi/N4qabPO9X5o/hqdefault.jpg",
-        "duration": "25:00",
+        "title": "How to get feel less tired",
+        "description": "How to get feel less tired",
+        "youtube_id": "srgUvSsfOXc",
+        "thumbnail": "https://img.youtube.com/vi/srgUvSsfOXc/hqdefault.jpg",
+        "duration": "30sec",
         "categories": ["sleep", "meditation", "relaxation", "calming"],
         "tags": ["sleep", "evening", "relaxation"],
         "mood_tags": ["tired", "anxious"],
@@ -206,13 +203,15 @@ sample_videos = [
             "channel_id": "UC123456797"
         }
     },
+          
     
-    # Anxious/Stressed Mood Videos
+    
+# Anxious/Stressed Mood Videos
     {
-        "title": "Quick Anxiety Relief Breathing Technique",
-        "description": "Learn this powerful breathing technique to quickly reduce anxiety anywhere.",
-        "youtube_id": "acUZdGd_3Gw",
-        "thumbnail": "https://img.youtube.com/vi/acUZdGd_3Gw/hqdefault.jpg",
+        "title": "How stress affects your brain",
+        "description": "How stress affects your brain",
+        "youtube_id": "WuyPuH9ojCE",
+        "thumbnail": "https://img.youtube.com/vi/WuyPuH9ojCE/hqdefault.jpg",
         "duration": "4:15",
         "categories": ["mindfulness", "relaxation", "calming", "self-care"],
         "tags": ["anxiety", "breathing", "quick"],
@@ -249,11 +248,11 @@ sample_videos = [
         }
     },
     {
-        "title": "3-Minute Grounding Exercise for Anxiety",
-        "description": "A quick and effective grounding technique to bring you back to the present moment.",
-        "youtube_id": "1FL3afr0dO4",
-        "thumbnail": "https://img.youtube.com/vi/1FL3afr0dO4/hqdefault.jpg",
-        "duration": "30:00",
+        "title": "What Is Depression? ",
+        "description": "Depression Causes And Symptoms",      
+          "youtube_id": "0hxFR6tezAc",
+        "thumbnail": "https://img.youtube.com/0hxFR6tezAc/hqdefault.jpg",
+        "duration": "6:23",
         "categories": ["mindfulness", "calming", "self-care", "relaxation"],
         "tags": ["anxiety", "grounding", "quick"],
         "mood_tags": ["anxious"],
@@ -267,6 +266,8 @@ sample_videos = [
             "name": "Present Mind",
             "channel_id": "UC123456800"
         }
+            
+
     },
     
     # Angry Mood Videos
@@ -274,7 +275,7 @@ sample_videos = [
         "title": "5-Minute Anger Management Techniques",
         "description": "Quick and effective techniques to manage anger and regain emotional control.",
         "youtube_id": "Po4O-2Tk_o",
-        "thumbnail": "https://img.youtube.com/vi/s4dMCkoqj8A/hqdefault.jpg",
+        "thumbnail": "https://img.youtube.com/vi/Po4O-2Tk_o/hqdefault.jpg",
         "duration": "32:00",
         "categories": ["mindfulness", "calming", "self-care", "emotional-control"],
         "tags": ["anger", "management", "quick"],
@@ -291,11 +292,11 @@ sample_videos = [
         }
     },
     {
-        "title": "Calming Visualization for Releasing Anger",
-        "description": "A guided visualization to help you release anger and find emotional peace.",
-        "youtube_id": "bqJs2-GYM-A",
-        "thumbnail": "https://img.youtube.com/vi/CL6xyBeBHOw/hqdefault.jpg",
-        "duration": "10:20",
+        "title": "why do we get angry",
+        "description": "why do we get angry",
+        "youtube_id": "clwt7iXF1Mg&t=8s",
+        "thumbnail": "https://img.youtube.com/vi/clwt7iXF1Mg&t=8s/hqdefault.jpg",
+        "duration": "5:59",
         "categories": ["meditation", "visualization", "calming", "emotional-release"],
         "tags": ["anger", "release", "peace"],
         "mood_tags": ["angry", "anxious"],
@@ -309,15 +310,18 @@ sample_videos = [
             "name": "Mind Visualize",
             "channel_id": "UC123456802"
         }
+    
+
+
     },
     
     # Content/Calm Mood Videos
     {
-        "title": "Sunset Beach Meditation",
-        "description": "A peaceful meditation set to the sounds of gentle waves at sunset.",
-        "youtube_id": "sYECVezDnso",
-        "thumbnail": "https://img.youtube.com/vi/8GV9v7jnMcE/hqdefault.jpg",
-        "duration": "20:06",
+        "title": "Empty Your Mind",
+        "description": "a powerful zen story for your life",
+        "youtube_id": "GNDO2G6YySA",
+        "thumbnail": "https://img.youtube.com/vi/GNDO2G6YySA/hqdefault.jpg",
+        "duration": "4:37",
         "categories": ["meditation", "nature", "calming", "relaxation"],
         "tags": ["beach", "sunset", "waves"],
         "mood_tags": ["content", "neutral"],
@@ -333,11 +337,11 @@ sample_videos = [
         }
     },
     {
-        "title": "Mindful Walking Practice in Nature",
-        "description": "Learn how to practice mindfulness while walking in natural surroundings.",
-        "youtube_id": "0nwqqOCtGEU",
-        "thumbnail": "https://img.youtube.com/vi/0nwqqOCtGEU/hqdefault.jpg",
-        "duration": "12:37",
+        "title": "How You Can Achieve ANYTHING",
+        "description": "Zen Motivational Story",
+        "youtube_id": "3ZxFe1Z5LYs",
+        "thumbnail": "https://img.youtube.com/vi/3ZxFe1Z5LYs/hqdefault.jpg",
+        "duration": "2:49",
         "categories": ["mindfulness", "nature", "wellbeing", "self-care"],
         "tags": ["walking", "mindfulness", "nature"],
         "mood_tags": ["content", "neutral", "happy"],
@@ -351,7 +355,20 @@ sample_videos = [
             "name": "Nature Mindfulness",
             "channel_id": "UC123456804"
         }
+    },
+    {
+        "title": "A JOY STORY",
+        "description": "A JOY STORY",
+        "youtube_id": "iR-JFks6uI0",
+        "thumbnail": "https://img.youtube.com/vi/iR-JFks6uI0/hqdefault.jpg",
+        "duration": "4:03",
+        "title": "Switching to peacefool mood",
+        "description": "Switching to peacefool mood",
+        "youtube_id": "HS7XZDtnv-U",
+        "thumbnail": "https://img.youtube.com/vi/HS7XZDtnv-U/hqdefault.jpg",
+        "duration": "15",
     }
+
 ]
 
 def import_videos():

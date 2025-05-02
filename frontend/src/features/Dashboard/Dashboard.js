@@ -40,6 +40,11 @@ const Dashboard = () => {
       description: 'No recent mood data'
     }
   });
+  const [currentMood, setCurrentMood] = useState({
+    mood: 'neutral',
+    intensity: 3,
+    timestamp: null
+  });
   const [moodData, setMoodData] = useState([]);
   const [recommendedVideos, setRecommendedVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,6 +66,7 @@ const Dashboard = () => {
         // Create service instances
         const dashboardService = new DashboardService();
         const moodService = new MoodService();
+        const videoService = new VideoService();
         
         try {
           // Fetch dashboard stats (may fail if endpoint not available)
@@ -72,6 +78,10 @@ const Dashboard = () => {
         }
         
         try {
+          // Fetch the user's current mood
+          const currentMoodResponse = await moodService.getCurrentMood();
+          setCurrentMood(currentMoodResponse);
+          
           // Fetch mood data (using safer implementation that handles errors internally)
           const moodsResponse = await moodService.getAllMoods();
           setMoodData(moodsResponse);
@@ -81,9 +91,10 @@ const Dashboard = () => {
         }
         
         try {
-          // Fetch video recommendations based on mood trend
-          const videoService = new VideoService();
-          const videos = await videoService.getRecommendedVideos(dashboardStats.moodTrend.trend);
+          const currentMoodResponse = await moodService.getCurrentMood();
+          setCurrentMood(currentMoodResponse);
+          // Fetch video recommendations based on the current mood
+          const videos = await videoService.getRecommendedVideos(currentMoodResponse.mood || 'neutral');
           setRecommendedVideos(videos);
         } catch (videoError) {
           console.warn('Error fetching video recommendations:', videoError);
@@ -122,7 +133,20 @@ const Dashboard = () => {
     };
   };
 
-  // Build stats display with dynamic mood trend
+  // Get the current mood display
+  const getCurrentMoodDisplay = () => {
+    const mood = currentMood.mood || 'neutral';
+    const config = moodTrendConfig[mood] || moodTrendConfig.neutral;
+    
+    return {
+      icon: <Brain className="icon" />,
+      title: 'Current Mood',
+      value: config.label,
+      colorClass: config.colorClass
+    };
+  };
+
+  // Build stats display with dynamic mood trend and current mood
   const statsDisplay = [
     {
       icon: <BookHeart className="icon" />,
@@ -130,7 +154,7 @@ const Dashboard = () => {
       value: dashboardStats.journalCount,
       colorClass: 'pink-bg'
     },
-    getTrendDisplay(),
+    getCurrentMoodDisplay(),
     {
       icon: <Award className="icon" />,
       title: 'Current Streak',
@@ -207,7 +231,7 @@ const Dashboard = () => {
           <div className="video-recommendations-section">
             <h2 className="section-title">Recommended Videos For Your Mood</h2>
             <p className="recommendation-subtitle">
-              Videos to help with your {dashboardStats.moodTrend.description.toLowerCase()} mood
+              Videos to help with your {currentMood.mood || 'neutral'} mood
             </p>
             
             {isLoading ? (

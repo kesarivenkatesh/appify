@@ -1,220 +1,279 @@
 import React, { useState, useEffect } from 'react';
-import {
-  BarChart2,
-  Info,
-  ArrowUp,
-  ArrowDown,
-  Minus,
-  PlusCircle,
-  AlertTriangle
-} from 'lucide-react';
-import {
-  AreaChart,
-  Area,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
-} from 'recharts';
-import {
-  format,
-  eachDayOfInterval,
-  eachWeekOfInterval,
-  eachMonthOfInterval,
-  eachYearOfInterval
-} from 'date-fns';
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Brain, Calendar, TrendingUp, BarChart2 } from 'lucide-react';
 import MoodService from '../../../services/MoodService';
 import './MoodAnalyticsSummary.css';
 
-const moodValueMap = {
-  angry: -2,
-  sad: -1,
-  anxious: 0,
-  tired: 1,
-  neutral: 2,
-  content: 3,
-  happy: 4,
-  excited: 5
-};
-
-const moodColorMap = {
-  angry: '#F44336',
-  sad: '#2196F3',
-  anxious: '#FF9800',
-  tired: '#A78BFA',
-  neutral: '#9E9E9E',
-  content: '#3F51B5',
-  happy: '#4CAF50',
-  excited: '#FFD700'
-};
-
-const MoodAnalyticsSummary = ({ timeRange = 'month' }) => {
+const MoodAnalyticsSummary = () => {
+  const [timeRange, setTimeRange] = useState('month');
+  const [dateRange, setDateRange] = useState('');
+  const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [moodData, setMoodData] = useState([]);
-  const [activePeriod, setActivePeriod] = useState('week');
+
+  // Mood color mapping
+  const moodColors = {
+    'excited': '#FFD700', // gold
+    'happy': '#4CAF50', // green
+    'content': '#3F51B5', // indigo
+    'neutral': '#9E9E9E', // gray
+    'fluctuating': '#9C27B0', // purple
+    'anxious': '#FF9800', // orange
+    'tired': '#673AB7', // deep purple
+    'sad': '#2196F3', // blue
+    'angry': '#F44336' // red
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
+    // Calculate and set the date range string based on the selected time range
+    const now = new Date();
+    let start = new Date();
+    let rangeText = '';
+    
+    if (timeRange === 'week') {
+      // Set start to the beginning of the current week (Sunday)
+      const day = now.getDay(); // 0 = Sunday, 6 = Saturday
+      start.setDate(now.getDate() - day);
+      
+      // Format dates
+      const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const endStr = new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      
+      rangeText = `${startStr} - ${endStr}`;
+    } else if (timeRange === 'month') {
+      // Set start to the first day of the current month
+      start = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      // Set end to the last day of the current month
+      const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      
+      // Format dates
+      const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      
+      rangeText = `${startStr} - ${endStr}`;
+    } else if (timeRange === 'year') {
+      // Set start to January 1st of the current year
+      start = new Date(now.getFullYear(), 0, 1);
+      
+      // Format as full year
+      rangeText = now.getFullYear().toString();
+    }
+    
+    setDateRange(rangeText);
+  }, [timeRange]);
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
       try {
         setLoading(true);
-        const service = new MoodService();
-        const entries = await service.getAllMoodData(timeRange);
-        const processed = entries
-          .map(e => ({
-            ...e,
-            date: e.date ? new Date(e.date) : new Date(),
-            moodValue: moodValueMap[e.mood] ?? 2,
-            color: moodColorMap[e.mood] || moodColorMap.neutral
-          }))
-          .filter(e => !isNaN(e.date));
-        processed.sort((a, b) => a.date - b.date);
-        setMoodData(processed);
-      } catch (err) {
-        console.error(err);
-        setError('Failed to load mood data');
+        const moodService = new MoodService();
+        
+        // Try to use the generateCombinedAnalytics method first
+        try {
+          const data = await moodService.generateCombinedAnalytics(timeRange);
+          console.log('Analytics data:', data);
+          setAnalyticsData(data);
+        } catch (combinedError) {
+          console.warn('Error generating combined analytics, trying individual methods:', combinedError);
+          
+          // If that fails, try to get analytics from the API
+          try {
+            const data = await moodService.getMoodAnalytics(timeRange);
+            console.log('API Analytics data:', data);
+            setAnalyticsData(data);
+          } catch (apiError) {
+            console.warn('Error getting mood analytics from API, using fallback:', apiError);
+            
+            // If both methods fail, create a minimal fallback
+            // Get moods to create a simple distribution
+            const moods = await moodService.getMoods(timeRange);
+            
+            // Calculate a simple distribution
+            const distribution = {};
+            moods.forEach(mood => {
+              const moodType = mood.mood || 'neutral';
+              distribution[moodType] = (distribution[moodType] || 0) + 1;
+            });
+            
+            const distributionData = Object.entries(distribution).map(([mood, count]) => ({
+              mood,
+              count
+            }));
+            
+            // Create a simple analytics object
+            const fallbackData = {
+              moods: moods,
+              distribution: distributionData,
+              summary: {
+                mostCommonMood: moods.length > 0 ? 
+                  Object.entries(distribution).sort((a, b) => b[1] - a[1])[0][0] : 'neutral',
+                averageIntensity: moods.length > 0 ? 
+                  moods.reduce((sum, m) => sum + (m.intensity || 3), 0) / moods.length : 3,
+                variability: 'medium',
+                trend: 'stable',
+                totalEntries: moods.length
+              }
+            };
+            
+            setAnalyticsData(fallbackData);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching mood analytics:', error);
+        setError('Could not load mood analytics data. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
+
+    fetchAnalytics();
   }, [timeRange]);
 
-  const calculateStats = () => {
-    const grouped = {};
-    const counts = {};
-    if (moodData.length === 0) return { timelineData: [], distributionData: [] };
-
-    let intervals = [];
-    let dateFormatter = 'yyyy-MM-dd';
-    const firstDate = moodData[0].date;
-    const lastDate = moodData[moodData.length - 1].date;
-
-    if (activePeriod === 'day') {
-      intervals = eachDayOfInterval({ start: firstDate, end: lastDate });
-      dateFormatter = 'yyyy-MM-dd';
-    } else if (activePeriod === 'week') {
-      intervals = eachWeekOfInterval({ start: firstDate, end: lastDate });
-      dateFormatter = 'yyyy-ww';
-    } else if (activePeriod === 'month') {
-      intervals = eachMonthOfInterval({ start: firstDate, end: lastDate });
-      dateFormatter = 'yyyy-MM';
-    } else if (activePeriod === 'year') {
-      intervals = eachYearOfInterval({ start: firstDate, end: lastDate });
-      dateFormatter = 'yyyy';
-    }
-
-    intervals.forEach(date => {
-      const key = format(date, dateFormatter);
-      grouped[key] = [];
-    });
-
-    moodData.forEach(entry => {
-      let key = format(entry.date, dateFormatter);
-      grouped[key] = grouped[key] || [];
-      grouped[key].push(entry);
-      counts[entry.mood] = (counts[entry.mood] || 0) + 1;
-    });
-
-    const timelineData = Object.entries(grouped).map(([date, entries]) => {
-      const avgMood =
-        entries.length > 0 ? entries.reduce((acc, e) => acc + e.moodValue, 0) / entries.length : null;
-      return { date, avgMood };
-    });
-
-    const distributionData = Object.entries(counts).map(([name, value]) => ({
-      name,
-      value,
-      color: moodColorMap[name] || '#ccc'
-    }));
-
-    return { timelineData, distributionData };
+  // Handle time range change
+  const handleTimeRangeChange = (newRange) => {
+    setTimeRange(newRange);
   };
 
-  if (loading) return <div className="loading">Loading mood analytics...</div>;
-  if (error) return (
-    <div className="error">
-      <AlertTriangle size={24} /> {error}
-    </div>
-  );
-  if (!moodData.length) return (
-    <div className="empty">
-      <PlusCircle size={48} />
-      <p>No mood entries found. Start tracking to see analytics.</p>
-    </div>
-  );
-
-  const stats = calculateStats();
-
-  const renderTimelineChart = () => {
+  if (loading) {
     return (
-      <div className="chart-section">
-        <h3>Mood Timeline ({activePeriod}) <Info size={16} /></h3>
-        <ResponsiveContainer width="100%" height={250}>
-          <AreaChart
-            data={stats.timelineData}
-            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" tickFormatter={d => d} />
-            <YAxis domain={[-2, 5]} tickFormatter={v => v} />
-            <Tooltip labelFormatter={l => l} />
-            <defs>
-              <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <Area type="monotone" dataKey="avgMood" stroke="#8884d8" fill="url(#grad)" />
-          </AreaChart>
-        </ResponsiveContainer>
+      <div className="mood-analytics-loading">
+        <div className="spinner"></div>
+        <p>Loading mood analytics...</p>
       </div>
     );
-  };
+  }
 
-  const renderDistributionChart = () => (
-    <div className="chart-section">
-      <h3>Mood Distribution ({activePeriod}) <Info size={16} /></h3>
-      <ResponsiveContainer width="100%" height={250}>
-        <PieChart>
-          <Pie
-            data={stats.distributionData}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            outerRadius={80}
-            label
-          >
-            {stats.distributionData.map((entry, idx) => (
-              <Cell key={`cell-${idx}`} fill={entry.color} />
-            ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
-  );
+  if (error) {
+    return (
+      <div className="mood-analytics-error">
+        <p>{error}</p>
+      </div>
+    );
+  }
 
+  // If no data or no moods
+  if (!analyticsData || !analyticsData.moods || analyticsData.moods.length === 0) {
+    return (
+      <div className="mood-analytics-empty">
+        <Brain size={48} />
+        <h2>No Mood Data Yet</h2>
+        <p>Log your first mood to start seeing analytics here!</p>
+      </div>
+    );
+  }
+
+  // Format distribution data for the chart
+  const distributionData = analyticsData.distribution || [];
+  
   return (
     <div className="mood-analytics-summary">
-      <div className="period-toggle">
-        {['day','week','month','year'].map(p => (
-          <button
-            key={p}
-            className={p === activePeriod ? 'active' : ''}
-            onClick={() => setActivePeriod(p)}
-          >{p.charAt(0).toUpperCase() + p.slice(1)}</button>
-        ))}
+      <div className="mood-analytics-header">
+        <div className="header-main">
+          <h2>Mood Analytics</h2>
+          {dateRange && <p className="date-range">{dateRange}</p>}
+        </div>
+        <div className="time-range-selector">
+          <button 
+            className={timeRange === 'week' ? 'active' : ''} 
+            onClick={() => handleTimeRangeChange('week')}
+          >
+            Week
+          </button>
+          <button 
+            className={timeRange === 'month' ? 'active' : ''} 
+            onClick={() => handleTimeRangeChange('month')}
+          >
+            Month
+          </button>
+          <button 
+            className={timeRange === 'year' ? 'active' : ''} 
+            onClick={() => handleTimeRangeChange('year')}
+          >
+            Year
+          </button>
+        </div>
       </div>
-
-      <div className="charts-container">
-        {renderTimelineChart()}
-        {renderDistributionChart()}
+      
+      <div className="mood-analytics-cards">
+        <div className="analytics-card">
+          <div className="analytics-icon">
+            <Brain />
+          </div>
+          <div className="analytics-content">
+            <h3>Most Common Mood</h3>
+            <p className="analytics-value">
+              {analyticsData.summary?.mostCommonMood || 'Neutral'}
+            </p>
+          </div>
+        </div>
+        
+        <div className="analytics-card">
+          <div className="analytics-icon">
+            <TrendingUp />
+          </div>
+          <div className="analytics-content">
+            <h3>Mood Trend</h3>
+            <p className="analytics-value">
+              {analyticsData.summary?.trend ? 
+                analyticsData.summary.trend.charAt(0).toUpperCase() + analyticsData.summary.trend.slice(1) : 
+                'Stable'}
+            </p>
+          </div>
+        </div>
+        
+        <div className="analytics-card">
+          <div className="analytics-icon">
+            <Calendar />
+          </div>
+          <div className="analytics-content">
+            <h3>Total Entries</h3>
+            <p className="analytics-value">
+              {analyticsData.summary?.totalEntries || 0}
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      {/* Mood Distribution Chart */}
+      {distributionData.length > 0 && (
+        <div className="mood-distribution-chart">
+          <h3>Mood Distribution</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              data={distributionData}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 0,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="mood" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar 
+                dataKey="count" 
+                name="Occurrences" 
+                fill="#8884d8"
+                barSize={30}
+              >
+                {distributionData.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={moodColors[entry.mood] || '#8884d8'} 
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+      
+      <div className="mood-analytics-footer">
+        <p>Log your mood regularly for more detailed insights!</p>
       </div>
     </div>
   );

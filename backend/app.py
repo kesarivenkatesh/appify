@@ -18,6 +18,7 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SECURE"] = False  # In production
 CORS(app, resources={r"/*": {"origins": "http://happify.kentcs.org:8805", "supports_credentials": True}})
 
+
 load_dotenv()
 connection = MongoClient(os.getenv("CONNECTION_STRING"))
 db = connection["appifydb"]
@@ -472,6 +473,35 @@ def get_mood_trend():
     except Exception as e:
         app.logger.error(f"Failed to calculate mood trend: {str(e)}")
         return jsonify({"error": f"Failed to calculate mood trend: {str(e)}"}), 500
+@app.route('/moods/current', methods=['GET'])
+def get_current_mood():
+    """Get the user's current mood (alias for last mood)"""
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    
+    try:
+        username = session['user']
+        
+        # Get the most recent mood (current mood)
+        current_mood = moods_collection.find_one(
+            {"username": username},
+            sort=[("timestamp", -1)]
+        )
+        
+        if not current_mood:
+            return jsonify({
+                "mood": "neutral",
+                "timestamp": None
+            }), 200
+        
+        # Convert to JSON
+        current_mood = json.loads(json_util.dumps(current_mood))
+        
+        return jsonify(current_mood), 200
+    
+    except Exception as e:
+        app.logger.error(f"Failed to retrieve current mood: {str(e)}")
+        return jsonify({"error": f"Failed to retrieve current mood: {str(e)}"}), 500
 
 @app.route('/moods/last', methods=['GET'])
 def get_last_mood():

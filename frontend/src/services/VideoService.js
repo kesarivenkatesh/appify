@@ -10,91 +10,69 @@ class VideoService {
       },
     });
   }
-  /** 
-   * Video service for retrieving video recommendations based on mood
+  
+  /**
+   * Get video recommendations based on a current mood
+   * @param {string} mood - The current mood to get recommendations for
+   * @returns {Promise} Promise with recommended videos
    */
-
-  async getRecommendedVideos(mood) {
+  async getRecommendedVideos(mood = 'neutral') {
     try {
-      const response = await this.axiosInstance.get(`/videos/recommendations`, {
-        params: { mood },
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await this.axiosInstance.get('/videos/by-mood/' + mood);
       return response.data.videos || [];
     } catch (error) {
-      console.error('Error in getRecommendedVideos:', error);
-      return [];
+      console.error('Error fetching video recommendations:', error);
+      
+      // If the API endpoint fails, try the recommendations endpoint as fallback
+      try {
+        const fallbackResponse = await this.axiosInstance.get('/videos/recommendations', {
+          params: { mood }
+        });
+        return fallbackResponse.data.videos || [];
+      } catch (fallbackError) {
+        console.error('Error fetching fallback recommendations:', fallbackError);
+        return [];
+      }
     }
   }
-
-  async getVideosByMood(mood) {
-    try {
-      const response = await this.axiosInstance.get(`/videos/by-mood/${mood}`, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      return response.data.videos || [];
-    } catch (error) {
-      console.error('Error in getVideosByMood:', error);
-      return [];
-    }
-  }
-
+  
+  /**
+   * Get popular videos
+   * @param {number} limit - Maximum number of videos to return
+   * @returns {Promise} Promise with popular videos
+   */
   async getPopularVideos(limit = 6) {
     try {
-      const response = await this.axiosInstance.get(`/videos/popular`, {
-        params: { limit },
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      const response = await this.axiosInstance.get('/videos/popular', {
+        params: { limit }
       });
       return response.data.videos || [];
     } catch (error) {
-      console.error('Error in getPopularVideos:', error);
+      console.error('Error fetching popular videos:', error);
       return [];
     }
   }
-
-  async logVideoInteraction(videoId, interactionType, extraData = {}) {
+  
+  /**
+   * Log a video interaction (view, like, complete, etc.)
+   * @param {string} videoId - The ID of the video
+   * @param {string} interactionType - The type of interaction (view, like, complete)
+   * @param {number} watchedDuration - Duration watched in seconds (optional)
+   * @returns {Promise} Promise indicating success/failure
+   */
+  async logVideoInteraction(videoId, interactionType, watchedDuration = 0) {
     try {
-      const payload = {
+      const response = await this.axiosInstance.post('/videos/interaction', {
         videoId,
         interactionType,
-        timestamp: new Date().toISOString(),
-        ...extraData
-      };
-      
-      const response = await this.axiosInstance.post(`/videos/interaction`, payload, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        watchedDuration
       });
-      return response;
+      return response.data;
     } catch (error) {
-      console.error('Error in logVideoInteraction:', error);
-      throw error;
-    }
-  }
-   /**
-   * Get user's watched videos
-   * @param {number} limit - Maximum number of videos to return
-   * @returns {Promise} Promise with watched videos
-   */
-   async getWatchedVideos(limit = 10) {
-    try {
-      const response = await this.axiosInstance.get('/user/watched-videos', {
-        params: { limit }
-      });
-      return response.data || [];
-    } catch (error) {
-      console.error('Error fetching watched videos:', error);
-      return [];
+      console.error('Error logging video interaction:', error);
+      return null;
     }
   }
 }
 
 export default VideoService;
-

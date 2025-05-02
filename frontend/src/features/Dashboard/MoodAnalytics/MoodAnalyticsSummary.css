@@ -1,86 +1,174 @@
 .mood-analytics-summary {
-    padding: 2rem;
-    background-color: #fdfdfd;
-    border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 32px;
+}
+
+.mood-analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-main h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.header-main .date-range {
+  margin: 4px 0 0 0;
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.time-range-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.time-range-selector button {
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.time-range-selector button:hover {
+  background-color: #e8e8e8;
+}
+
+.time-range-selector button.active {
+  background-color: #4a6cf7;
+  color: white;
+  border-color: #4a6cf7;
+}
+
+.mood-analytics-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.analytics-card {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.analytics-icon {
+  background-color: rgba(74, 108, 247, 0.1);
+  padding: 12px;
+  border-radius: 50%;
+  color: #4a6cf7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.analytics-content h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #666;
+}
+
+.analytics-value {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.mood-distribution-chart {
+  margin-bottom: 32px;
+}
+
+.mood-distribution-chart h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.mood-analytics-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.spinner {
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 3px solid #4a6cf7;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.mood-analytics-error,
+.mood-analytics-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.mood-analytics-empty svg {
+  color: #4a6cf7;
+  margin-bottom: 16px;
+}
+
+.mood-analytics-footer {
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  padding-top: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .mood-analytics-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
   }
   
-  .period-toggle {
-    display: flex;
-    justify-content: center;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
+  .mood-analytics-cards {
+    grid-template-columns: 1fr;
   }
-  
-  .period-toggle button {
-    padding: 0.5rem 1rem;
-    background: #eaeaea;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-  
-  .period-toggle button:hover {
-    background: #d4d4d4;
-  }
-  
-  .period-toggle button.active {
-    background: #4CAF50;
-    color: white;
-  }
-  
-  .charts-container {
-    display: grid;
-    gap: 1rem;
-  }
-  
-  .chart-section {
-    background: white;
-    padding: 0.5rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  }
-  
-  .chart-section h3 {
-    margin-bottom: 0.5rem;
-    font-size: 1.125rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #333;
-  }
-  
-  .loading,
-  .error,
-  .empty {
-    text-align: center;
-    padding: 3rem;
-    color: #555;
-  }
-  
-  .error {
-    color: #e53935;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .empty p {
-    margin-top: 0.75rem;
-    font-size: 1rem;
-    color: #777;
-  }
-  @media (max-width: 480px) {
-    .card {
-      padding: 1.5rem;
-      margin: 0 1rem;
-    }
-    
-    input {
-      padding: 0.7rem;
-    }
-  }
+}

@@ -35,7 +35,7 @@ const Header = () => {
 
     return (
         <div className="header fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between">
-            <div className="logo-container flex items-center gap-3">
+            <div className="logo-container flex items-center">
                 <div className="logo-circle bg-gradient-to-br from-pink-400 to-pink-500 rounded-full w-12 h-12 flex items-center justify-center shadow-md">
                     <Laugh size={28} className="text-white animate-gentle-pulse" />
                 </div>
