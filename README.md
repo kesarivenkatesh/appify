@@ -1,4 +1,4 @@
-# appify
+# Happify
 Capstone project for Team Shark Spring 25
 
 ## Folder structure
