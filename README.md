@@ -10,6 +10,7 @@ Capstone project for Team Shark Spring 25
 
 ## steps to run
 ### frontend
+- create `.env` with `PORT=<PORT>`
 - npm install
 - npm start
 ### backend
